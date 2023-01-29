@@ -19,15 +19,30 @@ var wsServer = new WebSocketServer({ // create the server
     httpServer: server //if we already have our HTTPServer in server variable...
 });
 
-var clients = [];
+var rooms = []
 
 wsServer.on('request', function(request) {
     var connection = request.accept(null, request.origin);
     console.log("NEW WEBSOCKET USER!!!");
     connection.sendUTF("welcome!");
 
+	var url_info = url.parse( request.resourceURL, true ); //all the request info is here
+	var params = url_info.query; //the parameters
+
     // Add new client
-    clients.push(connection);
+    var room = params["room"];
+    if (!rooms[room]) { // Create room if does not exist
+        rooms[room] = [];
+    }
+    rooms[room].push(connection); // Add client to the room
+
+    // Add room info to the user
+    var client = {
+        connection: connection,
+        room: room
+    };
+
+
 
     connection.on('message', function(message) {
         if (message.type !== 'utf8') {
@@ -36,7 +51,7 @@ wsServer.on('request', function(request) {
         
         console.log( "NEW MSG: " + message.utf8Data ); // process WebSocket message
 
-        clients.forEach(client => {
+        rooms[client["room"]].forEach(client => {
             if (client === connection) {
                 return;
             }
