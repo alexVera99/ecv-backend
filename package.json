@@ -1,0 +1,15 @@
+{
+  "name": "ecv_backend",
+  "version": "1.0.0",
+  "description": "Backend for Virtual Communications subject project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "author": "Alexander Vera",
+  "license": "ISC",
+  "dependencies": {
+    "websocket": "^1.0.34"
+  }
+}
