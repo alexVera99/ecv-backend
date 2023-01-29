@@ -19,14 +19,29 @@ var wsServer = new WebSocketServer({ // create the server
     httpServer: server //if we already have our HTTPServer in server variable...
 });
 
+var clients = [];
+
 wsServer.on('request', function(request) {
     var connection = request.accept(null, request.origin);
     console.log("NEW WEBSOCKET USER!!!");
     connection.sendUTF("welcome!");
+
+    // Add new client
+    clients.push(connection);
+
     connection.on('message', function(message) {
-        if (message.type === 'utf8') {
-		console.log( "NEW MSG: " + message.utf8Data ); // process WebSocket message
+        if (message.type !== 'utf8') {
+            return;
         }
+        
+        console.log( "NEW MSG: " + message.utf8Data ); // process WebSocket message
+
+        clients.forEach(client => {
+            if (client === connection) {
+                return;
+            }
+            client.sendUTF(message.utf8Data);
+        });
     });
 
     connection.on('close', function(connection) {
