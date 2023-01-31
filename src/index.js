@@ -144,25 +144,38 @@ var MyServer = {
         MyServer.rooms[room_name].clients.push(client); // Add client to the room
     },
 
-    onMessage: function(message) {
-        if (message.type !== 'utf8') {
-            return;
-        }
-        
-        console.log( "NEW MSG: " + message.utf8Data ); // process WebSocket message
-
-        // Since it is a callback, this referes to the connection
-        var connection = this;
+    broadcastPayload: function(connection, payload) {
         var room_name = connection.room_name;
-
         var clients = MyServer.rooms[room_name].clients;
 
         clients.forEach(client => {
             if (client === connection) {
                 return;
             }
-            client.sendUTF(message.utf8Data);
+            client.sendUTF(JSON.stringify(payload));
         });
+    },
+
+    onMessage: function(message) {
+        if (message.type !== 'utf8') {
+            return;
+        }
+        var msg = message.utf8Data
+        console.log( "NEW MSG: " + msg ); // process WebSocket message
+
+        // Since it is a callback, this referes to the connection
+        var connection = this;
+
+        // Create payload
+        var payload = {
+            type: "msg",
+            data: {
+                author_id: connection.user_id,
+                msg: msg
+            }
+        };
+
+        MyServer.broadcastPayload(connection, payload);
     },
 
     onClose: function(connection) {
