@@ -108,7 +108,9 @@ var MyServer = {
     sendUserInfo: function (connection) {
         var info = {
             type: "connection",
-            author_id: connection.user_id
+            data: {
+                author_id: connection.user_id
+            }
         };
     
         connection.send(JSON.stringify(info));
