@@ -42,6 +42,8 @@ var MyServer = {
         MyServer.sendUserInfo(client);
 
         MyServer.addClientToRoom(client, room_name);
+
+        MyServer.broadcastOnNewUserConnected(client);
     
         client.on('message', MyServer.onMessage);
     
@@ -154,6 +156,17 @@ var MyServer = {
             }
             client.sendUTF(JSON.stringify(payload));
         });
+    },
+
+    broadcastOnNewUserConnected: function (connection) {
+        var payload = {
+            type: "connection_new_user",
+            data: {
+                user_id: connection.user_id
+            }
+        };
+
+        MyServer.broadcastPayload(connection, payload);
     },
 
     onMessage: function(message) {
