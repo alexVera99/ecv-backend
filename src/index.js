@@ -53,7 +53,39 @@ var MyServer = {
         var url_info = url.parse( request.url, true ); //all the request info is here
         var pathname = url_info.pathname; //the address
         var params = url_info.query; //the parameters
-        response.end("OK!"); //send a response
+        
+        if (pathname == "/room") {
+            var room_name = params["room"];
+            var payload = MyServer.getRoomInfo(room_name);
+
+            var status_code = payload === null ? 404 : 200;
+            
+            MyServer.sendHTTPResponse(response, status_code, payload);
+            return;
+        }
+
+        if (pathname == "/") {
+            response.end("Welcome :)"); //send a response
+        }
+    },
+
+    sendHTTPResponse: function (response, status_code, data) {
+        //allow cors
+        response.writeHead(status_code, { 'Content-Type': 'text/plain', "Access-Control-Allow-Origin": "*" });
+
+        if (status_code == 404) {
+            response.write(JSON.stringify({
+                message: "Not found"
+            }));
+            response.end();
+            return;
+        }
+
+        if (typeof(data) == "object")
+            response.write(JSON.stringify(data));
+        else
+            response.write(data);
+        response.end();
     },
 
     // Websocket functions
@@ -135,6 +167,33 @@ var MyServer = {
 
     onClose: function(connection) {
         console.log("USER IS GONE");// close user connection
+    },
+
+    // HTTP requests functions
+    getRoomInfo: function (room_name) {
+        // Find room
+        var room = MyServer.rooms[room_name]
+        if (!room) {
+            var room_info = {
+                type: "room_info",
+                data: "Not found"
+            }
+            return null;
+        }
+        var clients = room.clients;
+
+        var client_ids = clients.map((client) => {
+            return client.user_id;
+        });
+
+        var room_info = {
+            type: "room_info",
+            data: {
+                clients: client_ids // Id of clients connected to the room
+            }
+        }
+
+        return room_info;
     }
 }
 

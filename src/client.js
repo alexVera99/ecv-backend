@@ -28,7 +28,7 @@ var my_client = {
 
     getRoomInfo: function(room, on_complete) {
         var req = new XMLHttpRequest();
-        req.open('GET', url + "/room/" + room, true);
+        req.open('GET', "http://" + url + "/room?room=" + room, true);
         req.onreadystatechange = function (aEvt) {
             if (req.readyState == 4) {
                 if(req.status != 200)
