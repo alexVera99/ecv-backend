@@ -29,6 +29,27 @@ var my_client = {
                 author_id: 1234
             }
         }
+
+        {
+            type: "room_info",
+            data: {
+                clients: [1, 2, 3] // Id of clients connected to the room
+            }
+        }
+
+        {
+            type: "connection_new_user",
+            data: {
+                user_id: 123
+            }
+        }
+
+        {
+            type: "disconnection_user",
+            data: {
+                user_id: 123
+            }
+        }
         */
         console.log(message.data);
         var payload = JSON.parse(message.data);
@@ -44,6 +65,21 @@ var my_client = {
             var author = data["author_id"];
             var msg = data["msg"];
             my_client.on_message(author, msg);
+        }
+
+        else if (type == "room_info" && my_client.on_room_info) {
+            var info = data["clients"];
+            my_client.on_room_info(info);
+        }
+
+        else if (type == "connection_new_user" && my_client.on_user_connected) {
+            var user_id = data["user_id"];
+            my_client.on_user_connected(user_id);
+        }
+
+        else if (type == "disconnection_user" && my_client.on_user_disconnected) {
+            var user_id = data["user_id"];
+            my_client.on_user_disconnected(user_id);
         }
     },
 
