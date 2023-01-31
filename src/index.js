@@ -178,8 +178,20 @@ var MyServer = {
         MyServer.broadcastPayload(connection, payload);
     },
 
-    onClose: function(connection) {
-        console.log("USER IS GONE");// close user connection
+    onClose: function (event) {
+        var connection = this;
+        var user_id = connection.user_id;
+
+        console.log("USER " + user_id + " IS GONE");
+
+        var payload = {
+            type: "disconnection_user",
+            data: {
+                user_id: user_id
+            }
+        }
+
+        MyServer.broadcastPayload(connection, payload);
     },
 
     // HTTP requests functions
