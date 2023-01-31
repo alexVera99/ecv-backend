@@ -1,8 +1,12 @@
 var my_client = {
     url: "",
+    room: undefined,
     socket: undefined,
 
     connect: function (url, room) {
+        my_client.url = url;
+        my_client.room = room;
+        
         my_client.socket = new WebSocket("ws://" + url + "?room=" + room);
 
         my_client.socket.onmessage = my_client.onMessage;
@@ -28,7 +32,7 @@ var my_client = {
 
     getRoomInfo: function(room, on_complete) {
         var req = new XMLHttpRequest();
-        req.open('GET', "http://" + url + "/room?room=" + room, true);
+        req.open('GET', "http://" + my_client.url + "/room?room=" + room, true);
         req.onreadystatechange = function (aEvt) {
             if (req.readyState == 4) {
                 if(req.status != 200)
@@ -79,7 +83,6 @@ var my_client = {
             }
         }
         */
-        console.log(message.data);
         var payload = JSON.parse(message.data);
         var type = payload["type"];
         var data = payload["data"];
