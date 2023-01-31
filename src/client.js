@@ -26,6 +26,21 @@ var my_client = {
         my_client.socket.send(message);
     },
 
+    getRoomInfo: function(room, on_complete) {
+        var req = new XMLHttpRequest();
+        req.open('GET', url + "/room/" + room, true);
+        req.onreadystatechange = function (aEvt) {
+            if (req.readyState == 4) {
+                if(req.status != 200)
+                    return console.error("Error getting room info: ", req.responseText );
+                var resp = JSON.parse(req.responseText);
+                if(on_complete)
+                    on_complete(resp.data);
+            }
+        };
+        req.send(null);
+    },
+
     onMessage: function (message) {
         /*
         {
