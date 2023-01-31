@@ -1,65 +1,141 @@
 var http = require('http');
 var server_port = process.env.NODE_SERVER_PORT;
 var url = require('url');
+var WebSocketServer = require('websocket').server;
 
-var server = http.createServer( function(request, response) {
-	console.log("REQUEST: " + request.url );
-	var url_info = url.parse( request.url, true ); //all the request info is here
-	var pathname = url_info.pathname; //the address
-	var params = url_info.query; //the parameters
-	response.end("OK!"); //send a response
-});
+var server = http.createServer();
 
 server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
-var WebSocketServer = require('websocket').server;
-var wsServer = new WebSocketServer({ // create the server
-    httpServer: server //if we already have our HTTPServer in server variable...
-});
+var MyServer = {
+    rooms: [],
+    defaut_room_name: "default_room",
+    clients: [],
+    client_id_last: 1,
+    server: undefined,
+    wsServer: undefined,
 
-var rooms = []
+    init: function(server) {
+        if(!server) {
+            throw("You must provide a server!!");
+        }
 
-wsServer.on('request', function(request) {
-    var connection = request.accept(null, request.origin);
-    console.log("NEW WEBSOCKET USER!!!");
-    connection.sendUTF("welcome!");
+        MyServer.server = server;
 
-	var url_info = url.parse( request.resourceURL, true ); //all the request info is here
-	var params = url_info.query; //the parameters
+        MyServer.server.addListener('request', MyServer.httpHandler.bind(this));
 
-    // Add new client
-    var room = params["room"];
-    if (!rooms[room]) { // Create room if does not exist
-        rooms[room] = [];
-    }
-    rooms[room].push(connection); // Add client to the room
+        MyServer.wsServer = new WebSocketServer({
+            httpServer: server
+        });
+        MyServer.wsServer.on('request', MyServer.wsConnectionHandler.bind(this));
+    },
 
-    // Add room info to the user
-    var client = {
-        connection: connection,
-        room: room
-    };
+    wsConnectionHandler: function(request) {
+        var connection = request.accept(null, request.origin);
+        
+        var room_name = MyServer.getRoomNameFromRequestParams(request);
 
+        var client = MyServer.createNewClient(connection, room_name);
+        
+        MyServer.sendUserInfo(client);
 
+        MyServer.addClientToRoom(client, room_name);
+    
+        client.on('message', MyServer.onMessage);
+    
+        client.on('close', MyServer.onClose);
+    },
 
-    connection.on('message', function(message) {
+    httpHandler: function(request, response) {
+        console.log("REQUEST: " + request.url );
+        var url_info = url.parse( request.url, true ); //all the request info is here
+        var pathname = url_info.pathname; //the address
+        var params = url_info.query; //the parameters
+        response.end("OK!"); //send a response
+    },
+
+    // Websocket functions
+    createNewClient: function(connection, room_name) {
+        /* Add the connection to the clients array and extends
+        the fields of the connection so it has user_id and room_name */
+
+        connection.user_id = MyServer.client_id_last
+        connection.room_name = room_name;
+
+        MyServer.client_id_last += 1;
+
+        MyServer.clients.push(connection);
+
+        return connection;
+    },
+
+    sendUserInfo: function (connection) {
+        var info = {
+            type: "connection",
+            id: connection.user_id
+        };
+    
+        connection.send(JSON.stringify(info));
+
+    },
+
+    getRoomNameFromRequestParams: function(request) {
+        var url_info = url.parse( request.resourceURL, true ); //all the request info is here
+        var params = url_info.query; //the parameters
+        
+        // Get room_name from params
+        if (params["room"]) {
+            var room_name = params["room"];
+        }
+        else {
+            var room_name = MyServer.defaut_room_name;
+        }
+
+        return room_name;
+    },
+
+    createRoom: function(room_name) {
+        var room = {
+            room_name: room_name,
+            clients: []
+        }
+        MyServer.rooms[room_name] = room;
+    },
+
+    addClientToRoom: function (client, room_name) {
+        // Add new client
+        if (!MyServer.rooms[room_name]) { // Create room if does not exist
+            MyServer.createRoom(room_name);
+        }
+        MyServer.rooms[room_name].clients.push(client); // Add client to the room
+    },
+
+    onMessage: function(message) {
         if (message.type !== 'utf8') {
             return;
         }
         
         console.log( "NEW MSG: " + message.utf8Data ); // process WebSocket message
 
-        rooms[client["room"]].forEach(client => {
+        // Since it is a callback, this referes to the connection
+        var connection = this;
+        var room_name = connection.room_name;
+
+        var clients = MyServer.rooms[room_name].clients;
+
+        clients.forEach(client => {
             if (client === connection) {
                 return;
             }
             client.sendUTF(message.utf8Data);
         });
-    });
+    },
 
-    connection.on('close', function(connection) {
-	  console.log("USER IS GONE");// close user connection
-    });
-});
+    onClose: function(connection) {
+        console.log("USER IS GONE");// close user connection
+    }
+}
+
+MyServer.init(server);
