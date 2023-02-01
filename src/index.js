@@ -1,5 +1,5 @@
 var http = require('http');
-var server_port = process.env.NODE_SERVER_PORT;
+var server_port = 8081;
 var url = require('url');
 var WebSocketServer = require('websocket').server;
 
@@ -69,6 +69,7 @@ var MyServer = {
         if (pathname == "/") {
             response.end("Welcome :)"); //send a response
         }
+
     },
 
     sendHTTPResponse: function (response, status_code, data) {
@@ -159,7 +160,15 @@ var MyServer = {
             client.sendUTF(JSON.stringify(payload));
         });
     },
-
+    //podem ajuntar amb la anterior
+    broadcastPayloadToClient: function(connection, payload, clients) {
+        var room_name = connection.room_name;
+        
+        clients.forEach(client => {
+            client.sendUTF(JSON.stringify(payload));
+        });
+    },
+    
     broadcastOnNewUserConnected: function (connection) {
         var payload = {
             type: "connection_new_user",
@@ -172,6 +181,7 @@ var MyServer = {
     },
 
     onMessage: function(message) {
+       
         if (message.type !== 'utf8') {
             return;
         }
@@ -189,6 +199,14 @@ var MyServer = {
                 msg: msg
             }
         };
+
+        if(msg.private){
+            var target_ids = msg.target_ids;
+            delete payload.data.msg.target_ids;
+            delete payload.data.msg.private;
+            MyServer.broadcastPayloadToClient(connection, payload, target_ids);
+
+        }
 
         MyServer.broadcastPayload(connection, payload);
     },

@@ -13,20 +13,23 @@ var my_client = {
     },
 
 
-    sendMessage: function (message) {
+    sendMessage: function (message, target_ids) {
         if (message === null){
             return;
-        }
-
-        if (message.constructor === Object) {
-            message = JSON.stringify(message);
         }
 
         if(!this.socket || this.socket.readyState !== WebSocket.OPEN) {
             console.error("Not connected, cannot send info");
             return;
         }
-        
+        if(target_ids){
+            message.private = true;
+            message.target_ids = target_ids;
+        }
+
+        if (message.constructor === Object) {
+            message = JSON.stringify(message);
+        }
         my_client.socket.send(message);
     },
 
