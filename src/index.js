@@ -15,8 +15,85 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
+// MOCK DATA
+var room1Data = {
+    room_id: 0,
+    scale: 2.5,
+    room_name: "street1",
+    users: [],
+    image_uri: "../imgs/bg1.png",
+    offset: 0,
+    range: [-200, 200],
+    exits: [
+        {
+            position: [364, 125],
+            height:41,
+            width:24,
+            to_room_id: 1
+        }
+    ]
+};
+
+var room2Data = {
+    room_id:1,
+    scale: 2.05,
+    room_name:"street2",
+    users: [],
+    image_uri: "../imgs/city.png",
+    offset: 0,
+    range: [-300, 300],
+    exits: [
+        {
+            position:[518, 164],
+            height: 35,
+            width: 20,
+            to_room_id:0
+        }
+    ]
+
+};
+
+var mocked_rooms = [];
+mocked_rooms[room1Data.room_id] = room1Data;
+mocked_rooms[room2Data.room_id] = room2Data;
+console.log(mocked_rooms);
+
+var animationData = {
+    id: 0,
+    image_uri: "../imgs/spritesheet.png",
+    scale: 0,
+    walking_frames: [2,3,4,5,6,7,8,9],
+    idle_frames: [0],
+    talking_frames: [0,1],
+    facing_right: 0,
+    facing_left: 2,
+    facing_front: 1,
+    facing_back: 3
+    
+};
+var animation2Data = {
+    id: 1,
+    image_uri: "../imgs/char2.png",
+    scale: 0,
+    walking_frames: [2,3,4,5,6,7,8,9],
+    idle_frames: [0],
+    talking_frames: [0,1],
+    facing_right: 0,
+    facing_left: 2,
+    facing_front: 1,
+    facing_back: 3
+    
+};
+
+var mocked_animations = [];
+mocked_animations[animationData.id] = animationData;
+mocked_animations[animation2Data.id] = animation2Data;
+
+// END MOCK DATA
+
 var MyServer = {
-    rooms: [],
+    rooms: mocked_rooms, // This data should come from database
+    animations: mocked_animations, // This data should come from database
     defaut_room_name: "default_room",
     clients: [],
     client_id_last: 1,
@@ -40,16 +117,14 @@ var MyServer = {
 
     wsConnectionHandler: function(request) {
         var connection = request.accept(null, request.origin);
-        
-        var room_name = MyServer.getRoomNameFromRequestParams(request);
 
-        var client = MyServer.createNewClient(connection, room_name);
+        var client = MyServer.createNewClient(connection);
         
         MyServer.sendUserInfo(client);
 
-        MyServer.addClientToRoom(client, room_name);
+        //MyServer.addClientToRoom(client, room_name); 
 
-        MyServer.broadcastOnNewUserConnected(client);
+        //MyServer.broadcastOnNewUserConnected(client);
     
         client.on('message', MyServer.onMessage);
     
@@ -98,16 +173,15 @@ var MyServer = {
     },
 
     // Websocket functions
-    createNewClient: function(connection, room_name) {
+    createNewClient: function(connection) {
         /* Add the connection to the clients array and extends
         the fields of the connection so it has user_id and room_name */
 
         connection.user_id = MyServer.client_id_last
-        connection.room_name = room_name;
 
         MyServer.client_id_last += 1;
 
-        MyServer.clients.push(connection);
+        MyServer.clients[connection.user_id] = connection;
 
         return connection;
     },
@@ -116,27 +190,14 @@ var MyServer = {
         var info = {
             type: "connection",
             data: {
-                author_id: connection.user_id
+                user_id: connection.user_id,
+                rooms_data: MyServer.rooms,
+                animations_data: MyServer.animations
             }
         };
     
         connection.send(JSON.stringify(info));
 
-    },
-
-    getRoomNameFromRequestParams: function(request) {
-        var url_info = url.parse( request.resourceURL, true ); //all the request info is here
-        var params = url_info.query; //the parameters
-        
-        // Get room_name from params
-        if (params["room"]) {
-            var room_name = params["room"];
-        }
-        else {
-            var room_name = MyServer.defaut_room_name;
-        }
-
-        return room_name;
     },
 
     createRoom: function(room_name) {
@@ -157,9 +218,10 @@ var MyServer = {
 
     broadcastPayload: function(connection, payload) {
         var room_name = connection.room_name;
-        var clients = MyServer.rooms[room_name].clients;
+        var user_ids = MyServer.rooms[room_name].users;
 
-        clients.forEach(client => {
+        user_ids.forEach(user_id => {
+            var client = MyServer.clients[user_id];
             if (client === connection) {
                 return;
             }

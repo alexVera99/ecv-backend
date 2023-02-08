@@ -91,8 +91,7 @@ var my_client = {
         var data = payload["data"];
 
         if (type == "connection" && my_client.on_ready) {
-            var author_id = data["author_id"];
-            my_client.on_ready(author_id);
+            my_client.on_ready(data);
         }
 
         else if (type == "msg" && my_client.on_message) {
