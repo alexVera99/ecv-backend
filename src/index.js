@@ -2,8 +2,14 @@ var http = require('http');
 var server_port = 8081;
 var url = require('url');
 var WebSocketServer = require('websocket').server;
+var express = require('express');
 
-var server = http.createServer();
+// Expose "public" folder
+var app = express();
+app.use(express.static('public'));
+
+// Create http server
+var server = http.createServer(app);
 
 server.listen(server_port, function() {
 	console.log("Server ready!" );
