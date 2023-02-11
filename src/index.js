@@ -17,7 +17,7 @@ server.listen(server_port, function() {
 
 // MOCK DATA
 var room1Data = {
-    room_id: 0,
+    room_id: 1,
     scale: 2.5,
     room_name: "street1",
     users: [],
@@ -35,7 +35,7 @@ var room1Data = {
 };
 
 var room2Data = {
-    room_id:1,
+    room_id:2,
     scale: 2.05,
     room_name:"street2",
     users: [],
@@ -56,10 +56,9 @@ var room2Data = {
 var mocked_rooms = [];
 mocked_rooms[room1Data.room_id] = room1Data;
 mocked_rooms[room2Data.room_id] = room2Data;
-console.log(mocked_rooms);
 
 var animationData = {
-    id: 0,
+    avatar_id: 1,
     image_uri: "../imgs/spritesheet.png",
     scale: 0,
     walking_frames: [2,3,4,5,6,7,8,9],
@@ -72,7 +71,7 @@ var animationData = {
     
 };
 var animation2Data = {
-    id: 1,
+    avatar_id: 2,
     image_uri: "../imgs/char2.png",
     scale: 0,
     walking_frames: [2,3,4,5,6,7,8,9],
@@ -86,8 +85,8 @@ var animation2Data = {
 };
 
 var mocked_animations = [];
-mocked_animations[animationData.id] = animationData;
-mocked_animations[animation2Data.id] = animation2Data;
+mocked_animations[animationData.avatar_id] = animationData;
+mocked_animations[animation2Data.avatar_id] = animation2Data;
 
 // END MOCK DATA
 
@@ -122,10 +121,6 @@ var MyServer = {
         
         MyServer.sendUserInfo(client);
 
-        //MyServer.addClientToRoom(client, room_name); 
-
-        //MyServer.broadcastOnNewUserConnected(client);
-    
         client.on('message', MyServer.onMessage);
     
         client.on('close', MyServer.onClose);
@@ -200,29 +195,32 @@ var MyServer = {
 
     },
 
-    createRoom: function(room_name) {
+    /* createRoom: function(room_name) {
         var room = {
             room_name: room_name,
             clients: []
         }
         MyServer.rooms[room_name] = room;
-    },
+    }, */
 
-    addClientToRoom: function (client, room_name) {
-        // Add new client
-        if (!MyServer.rooms[room_name]) { // Create room if does not exist
-            MyServer.createRoom(room_name);
-        }
-        MyServer.rooms[room_name].clients.push(client); // Add client to the room
+    addClientToRoom: function (client, room_id, user_data) {
+        // Add room_id to client
+        client.room_id = room_id;
+
+        MyServer.rooms[room_id].users[user_data.user_id] = user_data; // Add user information to the room
     },
 
     broadcastPayload: function(connection, payload) {
-        var room_name = connection.room_name;
-        var user_ids = MyServer.rooms[room_name].users;
+        var room_id = connection.room_id;
+        if (!room_id) {
+            return;
+        }
 
-        user_ids.forEach(user_id => {
-            var client = MyServer.clients[user_id];
-            if (client === connection) {
+        var users = MyServer.rooms[room_id].users;
+
+        users.forEach(user => {
+            var client = MyServer.clients[user.user_id];
+            if (!client || client === connection) {
                 return;
             }
             client.sendUTF(JSON.stringify(payload));
@@ -237,11 +235,11 @@ var MyServer = {
         });
     },
     
-    broadcastOnNewUserConnected: function (connection) {
+    broadcastOnNewUserConnected: function (connection, user_data) {
         var payload = {
             type: "connection_new_user",
             data: {
-                user_id: connection.user_id
+                user_data: user_data
             }
         };
 
@@ -253,8 +251,7 @@ var MyServer = {
         if (message.type !== 'utf8') {
             return;
         }
-        var msg = message.utf8Data
-        console.log( "NEW MSG: " + msg ); // process WebSocket message
+        var msg = JSON.parse(message.utf8Data, true);
 
         // Since it is a callback, this referes to the connection
         var connection = this;
@@ -273,7 +270,16 @@ var MyServer = {
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
             MyServer.broadcastPayloadToClient(connection, payload, target_ids);
+            return;
+        }
 
+        if(msg["type"] == "user_connect_room") {
+            var user_data = msg["user_data"];
+            var room_id = user_data["room_id"];
+            connection.room_id = room_id;
+            MyServer.addClientToRoom(connection, room_id, user_data);
+            MyServer.broadcastOnNewUserConnected(connection, user_data);
+            return;
         }
 
         MyServer.broadcastPayload(connection, payload);

@@ -106,8 +106,8 @@ var my_client = {
         }
 
         else if (type == "connection_new_user" && my_client.on_user_connected) {
-            var user_id = data["user_id"];
-            my_client.on_user_connected(user_id);
+            var user_data = data["user_data"];
+            my_client.on_user_connected(user_data);
         }
 
         else if (type == "disconnection_user" && my_client.on_user_disconnected) {
