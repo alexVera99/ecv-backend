@@ -288,8 +288,19 @@ var MyServer = {
     onClose: function (event) {
         var connection = this;
         var user_id = connection.user_id;
+        var room_id = connection.room_id;
 
         console.log("USER " + user_id + " IS GONE");
+
+
+        // Delete from clients
+        MyServer.clients.splice(user_id, 1);
+
+        if(!room_id) { // If no room id, don't do anything else
+            return;
+        }
+
+        var room = MyServer.rooms[room_id];
 
         var payload = {
             type: "disconnection_user",
@@ -297,6 +308,9 @@ var MyServer = {
                 user_id: user_id
             }
         }
+
+        // Delete user from room users
+        room.users.splice(user_id, 1);
 
         MyServer.broadcastPayload(connection, payload);
     },
