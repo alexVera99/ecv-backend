@@ -101,8 +101,8 @@ var my_client = {
         }
 
         else if (type == "room_info" && my_client.on_room_info) {
-            var info = data["clients"];
-            my_client.on_room_info(info);
+            var users = data["users"];
+            my_client.on_room_info(users);
         }
 
         else if (type == "connection_new_user" && my_client.on_user_connected) {

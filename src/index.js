@@ -195,6 +195,20 @@ var MyServer = {
 
     },
 
+    sendUsersInRoom: function(connection) {
+        var room_id = connection.room_id;
+        var users = MyServer.rooms[room_id].users;
+
+        var paylaod = {
+            type: "room_info",
+            data: {
+                users: users
+            }
+        };
+    
+        connection.send(JSON.stringify(paylaod));
+    },
+
     /* createRoom: function(room_name) {
         var room = {
             room_name: room_name,
@@ -279,6 +293,7 @@ var MyServer = {
             connection.room_id = room_id;
             MyServer.addClientToRoom(connection, room_id, user_data);
             MyServer.broadcastOnNewUserConnected(connection, user_data);
+            MyServer.sendUsersInRoom(connection);
             return;
         }
 
