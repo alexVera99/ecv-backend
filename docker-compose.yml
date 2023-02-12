@@ -7,6 +7,7 @@ services:
     working_dir: /home/node/app
     environment:
       - NODE_SERVER_PORT=${NODE_SERVER_PORT}
+      - APP_DEBUG=${APP_DEBUG}
     volumes:
       - .:/home/node/app
     ports:

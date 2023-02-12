@@ -3,6 +3,7 @@ var server_port = 8081;
 var url = require('url');
 var WebSocketServer = require('websocket').server;
 var express = require('express');
+var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
 var app = express();
@@ -112,6 +113,12 @@ var MyServer = {
             httpServer: server
         });
         MyServer.wsServer.on('request', MyServer.wsConnectionHandler.bind(this));
+
+        // Debugging mode
+        if(isDebugMode){
+            setInterval(MyServer.usersConnectedAndRooms.bind(MyServer), 5000);
+            console.log("DEBUG MODE ON!!!!!!!!!");
+        }
     },
 
     wsConnectionHandler: function(request) {
@@ -297,6 +304,21 @@ var MyServer = {
             return;
         }
 
+        if(msg["type"] == "on_user_update_position") {
+            var user_id = msg["user_id"];
+            var target_position = msg["target_position"];
+
+            // Update user position in our registry
+            var room_id = connection.room_id;
+            var user = MyServer.rooms[room_id].users[user_id];
+            console.log(user.target_position);
+            user.target_position = target_position;
+            console.log(user.target_position);
+
+            MyServer.broadcastPayload(connection, payload);
+            return;
+        }
+
         MyServer.broadcastPayload(connection, payload);
     },
 
@@ -355,6 +377,51 @@ var MyServer = {
         }
 
         return room_info;
+    },
+
+    // Debug
+    usersConnectedAndRooms: function() {
+        var counterFunction = function(accumalator, elem) {
+            var elemIsNull = !elem;
+            if(elemIsNull){
+                return accumalator;
+            }
+            return accumalator + 1;
+        }
+        var rooms = MyServer.rooms;
+        var clients = MyServer.clients;
+        var num_clients = clients.length == 0 ? 
+                          0 : 
+                          clients.reduce(counterFunction, 0);
+
+        console.log("\n\n\n\n\n");
+        console.log("---------------------------------");
+        console.log("--------------DEBUG--------------")
+        console.log("Num of websocket clients ", num_clients);
+
+        rooms.forEach((room) => {
+            var room_id = room.room_id;
+            var users = room.users;
+            var num_users = users.length == 0 ? 
+                            0 : 
+                            users.reduce(counterFunction, 0);
+
+            console.log("------------------");
+            console.log("ROOM ", room_id);
+            console.log("Num of users connected: ", num_users);
+            users.forEach((user) => {
+                console.log("-------");
+                console.log("User id:", user.user_id);
+                console.log("User name:", user.username);
+                console.log("-------");
+
+            })
+            console.log("------------------");
+            
+        })
+
+        console.log("---------------------------------");
+        console.log("---------------------------------");
     }
 }
 
