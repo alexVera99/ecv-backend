@@ -30,7 +30,7 @@ var room1Data = {
             position: [364, 125],
             height:41,
             width:24,
-            to_room_id: 1
+            to_room_id: 2
         }
     ]
 };
@@ -48,7 +48,7 @@ var room2Data = {
             position:[518, 164],
             height: 35,
             width: 20,
-            to_room_id:0
+            to_room_id:1
         }
     ]
 
@@ -60,7 +60,8 @@ mocked_rooms[room2Data.room_id] = room2Data;
 
 var animationData = {
     avatar_id: 1,
-    image_uri: "../imgs/spritesheet.png",
+    image_uri: "../imgs/char1.png",
+    show_uri: "./imgs/avatar1.png",
     scale: 0,
     walking_frames: [2,3,4,5,6,7,8,9],
     idle_frames: [0],
@@ -74,6 +75,7 @@ var animationData = {
 var animation2Data = {
     avatar_id: 2,
     image_uri: "../imgs/char2.png",
+    show_uri: "./imgs/avatar2.png",
     scale: 0,
     walking_frames: [2,3,4,5,6,7,8,9],
     idle_frames: [0],
@@ -426,3 +428,4 @@ var MyServer = {
 }
 
 MyServer.init(server);
+
