@@ -1,8 +1,9 @@
-var http = require('http');
+import { createServer } from 'http';
 var server_port = 8081;
-var url = require('url');
-var WebSocketServer = require('websocket').server;
-var express = require('express');
+import { server as WebSocketServer } from 'websocket';
+import express from 'express';
+import { parse } from 'url';
+import { World } from './entities/dataManager.js';
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -10,7 +11,7 @@ var app = express();
 app.use(express.static('public'));
 
 // Create http server
-var server = http.createServer(app);
+var server = createServer(app);
 
 server.listen(server_port, function() {
 	console.log("Server ready!" );
@@ -93,6 +94,8 @@ mocked_animations[animation2Data.avatar_id] = animation2Data;
 
 // END MOCK DATA
 
+var world = new World();
+
 var MyServer = {
     rooms: mocked_rooms, // This data should come from database
     animations: mocked_animations, // This data should come from database
@@ -137,7 +140,7 @@ var MyServer = {
 
     httpHandler: function(request, response) {
         console.log("REQUEST: " + request.url );
-        var url_info = url.parse( request.url, true ); //all the request info is here
+        var url_info = parse( request.url, true ); //all the request info is here
         var pathname = url_info.pathname; //the address
         var params = url_info.query; //the parameters
         
