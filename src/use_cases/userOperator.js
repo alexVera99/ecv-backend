@@ -21,6 +21,10 @@ export class UserOperator{
         this.world.addUserToRoom(usr, room_id);
     }
 
+    removeUserFromRoom(user_id, room_id) {
+        this.world.removeUserFromRoom(user_id, room_id);
+    }
+
     removeUser(user_id) {
         this.world.removeUser(user_id);
 

@@ -42,15 +42,20 @@ export class World{
     }
 
     changeRoom(user_id, room_id){
-        var room = this.getRoom(room_id);
         var user = this.getUser(user_id);
         
-        room.users.delete(user_id);
+        this.removeUserFromRoom(user_id, room_id);
         
         user.room_id = room_id;
 
         var new_room = this.getRoom(room_id);
         new_room.users.set(this.currentUserId, user);
+    }
+
+    removeUserFromRoom(user_id, room_id) {
+        var room = this.getRoom(room_id);
+
+        room.users.delete(user_id);
     }
 
     removeUser(user_id) {

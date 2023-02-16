@@ -4,6 +4,13 @@ import { server as WebSocketServer } from 'websocket';
 import express from 'express';
 import { parse } from 'url';
 import { World } from './entities/dataManager.js';
+import { UserOperator } from './use_cases/userOperator.js';
+import { RoomOperator } from './use_cases/roomOperator.js';
+import { AnimationOperator } from './use_cases/animationOperator.js';
+import { UserRepository } from './repository/MySQL/userRepository.js';
+import { RoomRepository } from './repository/MySQL/roomRepository.js';
+import { AnimationRepository } from './repository/MySQL/animationRepository.js';
+import { mapToObj } from './utils/utils.js';
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -17,88 +24,22 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
-// MOCK DATA
-var room1Data = {
-    room_id: 1,
-    scale: 2.5,
-    room_name: "street1",
-    users: [],
-    image_uri: "../imgs/bg1.png",
-    offset: 0,
-    range: [-200, 200],
-    exits: [
-        {
-            position: [364, 125],
-            height:41,
-            width:24,
-            to_room_id: 2
-        }
-    ]
-};
-
-var room2Data = {
-    room_id:2,
-    scale: 2.05,
-    room_name:"street2",
-    users: [],
-    image_uri: "../imgs/city.png",
-    offset: 0,
-    range: [-300, 300],
-    exits: [
-        {
-            position:[518, 164],
-            height: 35,
-            width: 20,
-            to_room_id:1
-        }
-    ]
-
-};
-
-var mocked_rooms = [];
-mocked_rooms[room1Data.room_id] = room1Data;
-mocked_rooms[room2Data.room_id] = room2Data;
-
-var animationData = {
-    avatar_id: 1,
-    image_uri: "../imgs/char1.png",
-    show_uri: "./imgs/avatar1.png",
-    scale: 0,
-    walking_frames: [2,3,4,5,6,7,8,9],
-    idle_frames: [0],
-    talking_frames: [0,1],
-    facing_right: 0,
-    facing_left: 2,
-    facing_front: 1,
-    facing_back: 3
-    
-};
-var animation2Data = {
-    avatar_id: 2,
-    image_uri: "../imgs/char2.png",
-    show_uri: "./imgs/avatar2.png",
-    scale: 0,
-    walking_frames: [2,3,4,5,6,7,8,9],
-    idle_frames: [0],
-    talking_frames: [0,1],
-    facing_right: 0,
-    facing_left: 2,
-    facing_front: 1,
-    facing_back: 3
-    
-};
-
-var mocked_animations = [];
-mocked_animations[animationData.avatar_id] = animationData;
-mocked_animations[animation2Data.avatar_id] = animation2Data;
-
-// END MOCK DATA
-
 var world = new World();
 
+// MySQL Repositories
+var userRepository = new UserRepository();
+var animationRepository = new AnimationRepository();
+var roomRepository = new RoomRepository();
+
+var userOperator = new UserOperator(world, userRepository);
+var roomOperator = new RoomOperator(world, roomRepository);
+var animationOperator = new AnimationOperator(world, animationRepository);
+
+// Bootstrapping
+roomOperator.loadRoomsInWorld();
+animationOperator.loadAnimationsInWorld();
+
 var MyServer = {
-    rooms: mocked_rooms, // This data should come from database
-    animations: mocked_animations, // This data should come from database
     defaut_room_name: "default_room",
     clients: [],
     client_id_last: 1,
@@ -194,12 +135,15 @@ var MyServer = {
     },
 
     sendUserInfo: function (connection) {
+        var room_data = roomOperator.getAllRoomsAvailable();
+        var animations = animationOperator.getAllAnimations();
+
         var info = {
             type: "connection",
             data: {
                 user_id: connection.user_id,
-                rooms_data: MyServer.rooms,
-                animations_data: MyServer.animations
+                rooms_data: room_data,
+                animations_data: animations
             }
         };
     
@@ -209,7 +153,9 @@ var MyServer = {
 
     sendUsersInRoom: function(connection) {
         var room_id = connection.room_id;
-        var users = MyServer.rooms[room_id].users;
+        var usersMap = roomOperator.getAllUsersInRoom(room_id);
+
+        const users = mapToObj(usersMap);
 
         var paylaod = {
             type: "room_info",
@@ -233,7 +179,7 @@ var MyServer = {
         // Add room_id to client
         client.room_id = room_id;
 
-        MyServer.rooms[room_id].users[user_data.user_id] = user_data; // Add user information to the room
+        userOperator.addUserInRoom(user_data, room_id);
     },
 
     broadcastPayload: function(connection, payload) {
@@ -242,9 +188,9 @@ var MyServer = {
             return;
         }
 
-        var users = MyServer.rooms[room_id].users;
+        var users = roomOperator.getAllUsersInRoom(room_id);
 
-        users.forEach(user => {
+        users.forEach((user, id) => {
             var client = MyServer.clients[user.user_id];
             if (!client || client === connection) {
                 return;
@@ -342,8 +288,6 @@ var MyServer = {
             return;
         }
 
-        var room = MyServer.rooms[room_id];
-
         var payload = {
             type: "disconnection_user",
             data: {
@@ -352,7 +296,7 @@ var MyServer = {
         }
 
         // Delete user from room users
-        room.users.splice(user_id, 1);
+        userOperator.removeUserFromRoom(user_id, room_id);
 
         MyServer.broadcastPayload(connection, payload);
     },
