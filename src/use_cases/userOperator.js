@@ -14,11 +14,35 @@ export class UserOperator{
         this.world = world;
     }
     
-    addUserInRoom(user, room_id){
-        var usr = new User();
-        usr.fromJSON(user);
-        console.log("Creating user: " + usr);
-        this.world.addUserToRoom(usr, room_id);
+    addUserInRoom(user_data, room_id){
+        var user = new User();
+        user.fromJSON(user_data);
+        this.world.addUserToRoom(user, room_id);
+    }
+
+    getUser(user_id) {
+        let user = this.world.getUser(user_id);
+
+        return user;
+    }
+
+    getUserRoom(user_id) {
+        try {
+            let user = this.getUser(user_id);
+
+            let room_id = user.room_id;
+            return this.world.getRoom(room_id);
+        } catch (error) {
+            console.log("User with id " + user_id + " doesn't have room");
+            return undefined;
+        }
+    }
+
+    updateUserTargetPosition(user_id, target_position) {
+        let user = this.getUser(user_id);
+
+        user.target_position = target_position;
+        user.position = target_position; // OJOO!! IT CAN GENERATE SMALL DESYNC WHEN NEW USER CONNECTED
     }
 
     removeUserFromRoom(user_id, room_id) {

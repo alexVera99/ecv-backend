@@ -20,15 +20,11 @@ export class World{
     getAnimation(id){
         return this.animations.get(id);
     }
-    
-    addUser(user){
-        var user_id = user.user_id;
-
-        this.users.set(user_id, user);
-    }
 
     addUserToRoom(user, room_id){
         var user_id = user.user_id;
+
+        this.users.set(user_id, user); // A user in users map is always in a room!!!
 
         this.rooms.get(room_id).users.set(user_id, user);
     }

@@ -10,7 +10,7 @@ import { AnimationOperator } from './use_cases/animationOperator.js';
 import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
-import { mapToObj } from './utils/utils.js';
+import { WSClientOperator } from './use_cases/wsClientOperator.js';
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -31,9 +31,12 @@ var userRepository = new UserRepository();
 var animationRepository = new AnimationRepository();
 var roomRepository = new RoomRepository();
 
+// Data operators
 var userOperator = new UserOperator(world, userRepository);
 var roomOperator = new RoomOperator(world, roomRepository);
 var animationOperator = new AnimationOperator(world, animationRepository);
+
+var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animationOperator);
 
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
@@ -70,13 +73,13 @@ var MyServer = {
     wsConnectionHandler: function(request) {
         var connection = request.accept(null, request.origin);
 
-        var client = MyServer.createNewClient(connection);
+        let user_id = wsClientOperator.addClient(connection);
         
-        MyServer.sendUserInfo(client);
+        wsClientOperator.sendUserInitData(user_id);
 
-        client.on('message', MyServer.onMessage);
+        connection.on('message', MyServer.onMessage);
     
-        client.on('close', MyServer.onClose);
+        connection.on('close', MyServer.onClose);
     },
 
     httpHandler: function(request, response) {
@@ -121,103 +124,6 @@ var MyServer = {
     },
 
     // Websocket functions
-    createNewClient: function(connection) {
-        /* Add the connection to the clients array and extends
-        the fields of the connection so it has user_id and room_name */
-
-        connection.user_id = MyServer.client_id_last
-
-        MyServer.client_id_last += 1;
-
-        MyServer.clients[connection.user_id] = connection;
-
-        return connection;
-    },
-
-    sendUserInfo: function (connection) {
-        var room_data = roomOperator.getAllRoomsAvailable();
-        var animations = animationOperator.getAllAnimations();
-
-        var info = {
-            type: "connection",
-            data: {
-                user_id: connection.user_id,
-                rooms_data: room_data,
-                animations_data: animations
-            }
-        };
-    
-        connection.send(JSON.stringify(info));
-
-    },
-
-    sendUsersInRoom: function(connection) {
-        var room_id = connection.room_id;
-        var usersMap = roomOperator.getAllUsersInRoom(room_id);
-
-        const users = mapToObj(usersMap);
-
-        var paylaod = {
-            type: "room_info",
-            data: {
-                users: users
-            }
-        };
-    
-        connection.send(JSON.stringify(paylaod));
-    },
-
-    /* createRoom: function(room_name) {
-        var room = {
-            room_name: room_name,
-            clients: []
-        }
-        MyServer.rooms[room_name] = room;
-    }, */
-
-    addClientToRoom: function (client, room_id, user_data) {
-        // Add room_id to client
-        client.room_id = room_id;
-
-        userOperator.addUserInRoom(user_data, room_id);
-    },
-
-    broadcastPayload: function(connection, payload) {
-        var room_id = connection.room_id;
-        if (!room_id) {
-            return;
-        }
-
-        var users = roomOperator.getAllUsersInRoom(room_id);
-
-        users.forEach((user, id) => {
-            var client = MyServer.clients[user.user_id];
-            if (!client || client === connection) {
-                return;
-            }
-            client.sendUTF(JSON.stringify(payload));
-        });
-    },
-    //podem ajuntar amb la anterior
-    broadcastPayloadToClient: function(connection, payload, clients) {
-        var room_name = connection.room_name;
-        
-        clients.forEach(client => {
-            client.sendUTF(JSON.stringify(payload));
-        });
-    },
-    
-    broadcastOnNewUserConnected: function (connection, user_data) {
-        var payload = {
-            type: "connection_new_user",
-            data: {
-                user_data: user_data
-            }
-        };
-
-        MyServer.broadcastPayload(connection, payload);
-    },
-
     onMessage: function(message) {
        
         if (message.type !== 'utf8') {
@@ -241,64 +147,51 @@ var MyServer = {
             var target_ids = msg.target_ids;
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
-            MyServer.broadcastPayloadToClient(connection, payload, target_ids);
+            wsClientOperator.broadcastPayloadToClients(target_ids, payload);
             return;
-        }
+        } 
 
-        if(msg["type"] == "user_connect_room") {
+        else if(msg["type"] == "user_connect_room") {
             var user_data = msg["user_data"];
+            var user_id = user_data.user_id;
             var room_id = user_data["room_id"];
             connection.room_id = room_id;
-            MyServer.addClientToRoom(connection, room_id, user_data);
-            MyServer.broadcastOnNewUserConnected(connection, user_data);
-            MyServer.sendUsersInRoom(connection);
+
+            userOperator.addUserInRoom(user_data, room_id);
+
+            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
+            wsClientOperator.sendUsersInRoom(user_id);
+
             return;
         }
 
-        if(msg["type"] == "on_user_update_position") {
+        else if(msg["type"] == "on_user_update_position") {
             var user_id = msg["user_id"];
             var target_position = msg["target_position"];
 
             // Update user position in our registry
-            var room_id = connection.room_id;
-            var user = MyServer.rooms[room_id].users[user_id];
-            console.log(user.target_position);
-            user.target_position = target_position;
-            console.log(user.target_position);
-
-            MyServer.broadcastPayload(connection, payload);
+            userOperator.updateUserTargetPosition(user_id, target_position);
+            wsClientOperator.broadcastPayload(user_id, payload)
             return;
         }
 
-        MyServer.broadcastPayload(connection, payload);
+        else {
+            var user_id = connection.user_id;
+            wsClientOperator.broadcastPayload(user_id, payload);
+        }
     },
 
     onClose: function (event) {
         var connection = this;
         var user_id = connection.user_id;
-        var room_id = connection.room_id;
+        var room = userOperator.getUserRoom(user_id);
 
-        console.log("USER " + user_id + " IS GONE");
-
-
-        // Delete from clients
-        MyServer.clients.splice(user_id, 1);
-
-        if(!room_id) { // If no room id, don't do anything else
-            return;
+        if(room) {
+            var room_id = room.room_id;
+            userOperator.removeUserFromRoom(user_id, room_id);
         }
 
-        var payload = {
-            type: "disconnection_user",
-            data: {
-                user_id: user_id
-            }
-        }
-
-        // Delete user from room users
-        userOperator.removeUserFromRoom(user_id, room_id);
-
-        MyServer.broadcastPayload(connection, payload);
+        wsClientOperator.onCloseBroadcast(user_id);
     },
 
     // HTTP requests functions
