@@ -1,5 +1,4 @@
 import { createServer } from 'http';
-var server_port = 8081;
 import { server as WebSocketServer } from 'websocket';
 import express from 'express';
 import { parse } from 'url';
@@ -11,6 +10,8 @@ import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
+
+var server_port = process.env.NODE_SERVER_PORT || 8081;
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -223,30 +224,19 @@ var MyServer = {
 
     // Debug
     usersConnectedAndRooms: function() {
-        var counterFunction = function(accumalator, elem) {
-            var elemIsNull = !elem;
-            if(elemIsNull){
-                return accumalator;
-            }
-            return accumalator + 1;
-        }
-        var rooms = MyServer.rooms;
-        var clients = MyServer.clients;
-        var num_clients = clients.length == 0 ? 
-                          0 : 
-                          clients.reduce(counterFunction, 0);
+        var rooms =     roomOperator.getAllRoomsAvailable();
+        var clients = wsClientOperator.getAllClients();
+        var num_clients = clients.size;
 
         console.log("\n\n\n\n\n");
         console.log("---------------------------------");
         console.log("--------------DEBUG--------------")
         console.log("Num of websocket clients ", num_clients);
 
-        rooms.forEach((room) => {
-            var room_id = room.room_id;
+        rooms.forEach((room, id) => {
+            var room_id = id;
             var users = room.users;
-            var num_users = users.length == 0 ? 
-                            0 : 
-                            users.reduce(counterFunction, 0);
+            var num_users = users.size;
 
             console.log("------------------");
             console.log("ROOM ", room_id);

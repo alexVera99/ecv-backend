@@ -28,6 +28,10 @@ export class WSClientOperator {
         return user_id;
     }
 
+    getAllClients() {
+        return this.client_manager.my_clients;
+    }
+
     sendMessageToClient(user_id, message) {
         const connection = this.client_manager.getConnection(user_id);
 
