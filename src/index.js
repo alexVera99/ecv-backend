@@ -166,7 +166,7 @@ var MyServer = {
             return;
         }
 
-        else if(msg["type"] == "on_user_update_position") {
+        else if(msg["type"] == "user_update_position") {
             var user_id = msg["user_id"];
             var target_position = msg["target_position"];
 
