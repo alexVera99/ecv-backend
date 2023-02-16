@@ -28,4 +28,12 @@ export class AnimationOperator {
         return this.animationRepository.getAnimations();
     }
 
+    loadAnimationsInWorld() {
+        var animations = this.getAllAnimations();
+
+        animations.forEach(anim => {
+            this.world.addAnimation(anim);
+        });
+    }
+
 }

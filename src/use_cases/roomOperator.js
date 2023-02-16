@@ -13,7 +13,10 @@ export class RoomOperator {
     }
 
     getAllUsersInRoom(room_id) {
-        return this.world.getAllUsersInRoom(room_id);
+        var users = this.world.getAllUsersInRoom(room_id);
+        console.log("[Room operator] Users in room: " + JSON.stringify(users));
+
+        return users;
     }
 
     getRoom(room_id){
@@ -28,5 +31,13 @@ export class RoomOperator {
 
     getAllRoomsAvailable(){
         return this.roomRepository.getRooms();
+    }
+
+    loadRoomsInWorld() {
+        var rooms = this.getAllRoomsAvailable();
+
+        rooms.forEach(room => {
+            this.world.addRoom(room);
+        });
     }
 }

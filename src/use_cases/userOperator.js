@@ -1,3 +1,4 @@
+import { User } from "../entities/dataContainers.js";
 import {IUserRepository} from "./interfaces/iUserRepository.js";
 
 
@@ -14,7 +15,10 @@ export class UserOperator{
     }
     
     addUserInRoom(user, room_id){
-        this.world.addUser(user, room_id);
+        var usr = new User();
+        usr.fromJSON(user);
+        console.log("Creating user: " + usr);
+        this.world.addUserToRoom(usr, room_id);
     }
 
     removeUser(user_id) {

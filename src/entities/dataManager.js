@@ -10,7 +10,7 @@ export class World{
     }
 
     getAllUsersInRoom(room_id) {
-        return this.rooms.set(room_id, users);
+        return this.rooms.get(room_id).users;
     }
 
     getRoom(room_id){
@@ -22,13 +22,13 @@ export class World{
     }
     
     addUser(user){
-        var user_id = user_id;
+        var user_id = user.user_id;
 
         this.users.set(user_id, user);
     }
 
     addUserToRoom(user, room_id){
-        var user_id = user_id;
+        var user_id = user.user_id;
 
         this.rooms.get(room_id).users.set(user_id, user);
     }

@@ -52,7 +52,7 @@ export class Room {
     constructor(room_name) {
         this.room_id = null;
         this.room_name = room_name || "";
-        this.users = [];
+        this.users = new Map();
         this.scale = null;
         this.image_uri = null;
         this.offset = null;
