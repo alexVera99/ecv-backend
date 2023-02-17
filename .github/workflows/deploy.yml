@@ -27,10 +27,22 @@ jobs:
       run: |
         npm install
     
+    - name: Copy deployment code
+      run: |
+        mkdir deployment
+        cp -rf node_modules deployment
+        cp -rf public deployment
+        cp -rf src deployment
+        cp -rf database deployment
+    
     - name: Install sshpass
       run: |
         sudo apt-get install sshpass
 
     - name: 'Deploy to UPF server'
       run: |
-        sshpass -p ${{ secrets.SERVER_PASS }} scp -r -o StrictHostKeyChecking=no . MOONSCAPE@ecv-etic.upf.edu:/home/MOONSCAPE/p2/backend
+        sshpass -p ${{ secrets.SERVER_PASS }} scp -r -o StrictHostKeyChecking=no ./deployment MOONSCAPE@ecv-etic.upf.edu:/home/MOONSCAPE/p2/backend
+    
+    - name: 'Execute nodemon'
+      run: |
+        sshpass -p ${{ secrets.SERVER_PASS }} ssh -o StrictHostKeyChecking=no MOONSCAPE@ecv-etic.upf.edu 'cd /home/MOONSCAPE/p2/backend; node_modules/nodemon/bin/nodemon.js src/index.js'
