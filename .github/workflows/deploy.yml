@@ -33,4 +33,4 @@ jobs:
 
     - name: 'Deploy to UPF server'
       run: |
-        sshpass -p ${{ secrets.SERVER_PASS }} scp -o StrictHostKeyChecking=no . MOONSCAPE@ecv-etic.upf.edu:/home/MOONSCAPE/p2/backend
+        sshpass -p ${{ secrets.SERVER_PASS }} scp -rf -o StrictHostKeyChecking=no ./ MOONSCAPE@ecv-etic.upf.edu:/home/MOONSCAPE/p2/backend
