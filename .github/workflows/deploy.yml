@@ -31,7 +31,10 @@ jobs:
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.ECV_UPF_SERVER_SSH_PRIVATE_KEY }}
-        known_hosts: ${{ secrets.ECV_UPF_SERVER_KNOWN_HOSTS }}
+        known_hosts: "random_dont_worry"
+    
+    - name: Adding Known Hosts
+      run: ssh-keyscan -H ${{ env.SERVER_URL }} >> ~/.ssh/known_hosts
 
     - name: 'Deploy to UPF server'
       run: |
