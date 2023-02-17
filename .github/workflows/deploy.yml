@@ -35,4 +35,4 @@ jobs:
 
     - name: 'Deploy to UPF server'
       run: |
-        rsync -avz . ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:{{ env.SERVER_DEPLOY_PATH }}
+        rsync -avz . ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:${{ env.SERVER_DEPLOY_PATH }}
