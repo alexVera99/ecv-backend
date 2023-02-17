@@ -37,5 +37,12 @@ jobs:
       run: ssh-keyscan -H ${{ env.SERVER_URL }} >> ~/.ssh/known_hosts
 
     - name: 'Deploy to UPF server'
-      run: |
-        rsync -avz . ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:${{ env.SERVER_DEPLOY_PATH }}
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.ECV_UPF_SERVER_SSH_PRIVATE_KEY }}
+        ARGS: "-rlgoDzvc -i --delete"
+        SOURCE: "."
+        REMOTE_HOST: ${{ env.SERVER_URL }}
+        REMOTE_USER: ${{ env.SERVER_USER }}
+        TARGET: ${{ env.SERVER_DEPLOY_PATH }}
+        EXCLUDE: ".git*, .env_example"
