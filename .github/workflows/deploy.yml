@@ -1,11 +1,12 @@
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "ci" ]
 
 env:
   NODE_VERSION: '18.13.0'
   SERVER_USER: 'MOONSCAPE'
   SERVER_URL: 'ecv-etic.upf.edu'
+  SERVER_DEPLOY_PATH: '/home/MOONSCAPE/p2/backend'
 
 permissions:
   contents: read
@@ -26,7 +27,12 @@ jobs:
       run: |
         npm install
 
-    - name: 'Deploy to Azure WebApp'
-      id: deploy-to-webapp
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.ECV_UPF_SERVER_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.ECV_UPF_SERVER_KNOWN_HOSTS }}
+
+    - name: 'Deploy to UPF server'
       run: |
-        scp -r . ${{ env.SERVER_USER}}@${{ env.SERVER_USER}}
+        rsync -avz . ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:{{ env.SERVER_DEPLOY_PATH }}
