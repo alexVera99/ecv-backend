@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ "ci" ]
+    branches: [ "main" ]
 
 env:
   NODE_VERSION: '18.13.0'
