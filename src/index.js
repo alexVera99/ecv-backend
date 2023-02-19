@@ -25,6 +25,39 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
+
+// TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
+import { MySQLConnector } from './repository/MySQL/connect.js';
+import { User } from './entities/dataContainers.js';
+
+var connector = new MySQLConnector();
+/* var res = await connector.selectAll("users");
+console.log(res); */
+
+let table = "users";
+let id = 1;
+
+let query = "SELECT * FROM " + table + " AS us, animations AS anim" + 
+" WHERE us.id = ? AND us.animation_id = anim.id";
+let params = [id];
+
+var res = await connector.executeQueryWithParams(query, params);
+
+console.log(res);
+
+var user_data = res[0];
+
+var user = new User();
+user.user_id = user_data["id"];
+user.username = user_data["username"];
+user.room_id = user_data["room_id"];
+user.position = user_data["position"];
+
+console.log(user);
+// END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
+
+
+
 var world = new World();
 
 // MySQL Repositories
