@@ -8,6 +8,10 @@ services:
     environment:
       - NODE_SERVER_PORT=${NODE_SERVER_PORT}
       - APP_DEBUG=${APP_DEBUG}
+      - DB_HOST=${DB_HOST}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - .:/home/node/app
     ports:
