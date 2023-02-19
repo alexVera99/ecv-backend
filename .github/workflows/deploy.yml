@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  NODE_VERSION: '18.13.0'
+  SERVER_USER: 'MOONSCAPE'
+  SERVER_URL: 'ecv-etic.upf.edu'
+  SERVER_DEPLOY_PATH: '/home/MOONSCAPE/p2/backend'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: npm install, build, and test
+      run: |
+        npm install
+    
+    - name: Copy deployment code
+      run: |
+        mkdir deployment
+        cp -rf node_modules deployment
+        cp -rf public deployment
+        cp -rf src deployment
+    
+    - name: Install sshpass
+      run: |
+        sudo apt-get install sshpass
+
+    - name: 'Deploy to UPF server'
+      run: |
+        sshpass -p ${{ secrets.SERVER_PASS }} scp -r -o StrictHostKeyChecking=no ./deployment/* ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:${{ env.SERVER_DEPLOY_PATH }}
