@@ -1,8 +1,17 @@
-var http = require('http');
-var server_port = 8081;
-var url = require('url');
-var WebSocketServer = require('websocket').server;
-var express = require('express');
+import { createServer } from 'http';
+import { server as WebSocketServer } from 'websocket';
+import express from 'express';
+import { parse } from 'url';
+import { World } from './entities/dataManager.js';
+import { UserOperator } from './use_cases/userOperator.js';
+import { RoomOperator } from './use_cases/roomOperator.js';
+import { AnimationOperator } from './use_cases/animationOperator.js';
+import { UserRepository } from './repository/MySQL/userRepository.js';
+import { RoomRepository } from './repository/MySQL/roomRepository.js';
+import { AnimationRepository } from './repository/MySQL/animationRepository.js';
+import { WSClientOperator } from './use_cases/wsClientOperator.js';
+
+var server_port = process.env.NODE_SERVER_PORT || 8081;
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -10,92 +19,31 @@ var app = express();
 app.use(express.static('public'));
 
 // Create http server
-var server = http.createServer(app);
+var server = createServer(app);
 
 server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
-// MOCK DATA
-var room1Data = {
-    room_id: 1,
-    scale: 2.5,
-    room_name: "street1",
-    users: [],
-    image_uri: "../imgs/bg1.png",
-    offset: 0,
-    range: [-200, 200],
-    exits: [
-        {
-            position: [364, 125],
-            height:41,
-            width:24,
-            to_room_id: 2
-        }
-    ]
-};
+var world = new World();
 
-var room2Data = {
-    room_id:2,
-    scale: 2.05,
-    room_name:"street2",
-    users: [],
-    image_uri: "../imgs/city.png",
-    offset: 0,
-    range: [-300, 300],
-    exits: [
-        {
-            position:[518, 164],
-            height: 35,
-            width: 20,
-            to_room_id:1
-        }
-    ]
+// MySQL Repositories
+var userRepository = new UserRepository();
+var animationRepository = new AnimationRepository();
+var roomRepository = new RoomRepository();
 
-};
+// Data operators
+var userOperator = new UserOperator(world, userRepository);
+var roomOperator = new RoomOperator(world, roomRepository);
+var animationOperator = new AnimationOperator(world, animationRepository);
 
-var mocked_rooms = [];
-mocked_rooms[room1Data.room_id] = room1Data;
-mocked_rooms[room2Data.room_id] = room2Data;
+var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animationOperator);
 
-var animationData = {
-    avatar_id: 1,
-    image_uri: "../imgs/char1.png",
-    show_uri: "./imgs/avatar1.png",
-    scale: 0,
-    walking_frames: [2,3,4,5,6,7,8,9],
-    idle_frames: [0],
-    talking_frames: [0,1],
-    facing_right: 0,
-    facing_left: 2,
-    facing_front: 1,
-    facing_back: 3
-    
-};
-var animation2Data = {
-    avatar_id: 2,
-    image_uri: "../imgs/char2.png",
-    show_uri: "./imgs/avatar2.png",
-    scale: 0,
-    walking_frames: [2,3,4,5,6,7,8,9],
-    idle_frames: [0],
-    talking_frames: [0,1],
-    facing_right: 0,
-    facing_left: 2,
-    facing_front: 1,
-    facing_back: 3
-    
-};
-
-var mocked_animations = [];
-mocked_animations[animationData.avatar_id] = animationData;
-mocked_animations[animation2Data.avatar_id] = animation2Data;
-
-// END MOCK DATA
+// Bootstrapping
+roomOperator.loadRoomsInWorld();
+animationOperator.loadAnimationsInWorld();
 
 var MyServer = {
-    rooms: mocked_rooms, // This data should come from database
-    animations: mocked_animations, // This data should come from database
     defaut_room_name: "default_room",
     clients: [],
     client_id_last: 1,
@@ -126,18 +74,18 @@ var MyServer = {
     wsConnectionHandler: function(request) {
         var connection = request.accept(null, request.origin);
 
-        var client = MyServer.createNewClient(connection);
+        let user_id = wsClientOperator.addClient(connection);
         
-        MyServer.sendUserInfo(client);
+        wsClientOperator.sendUserInitData(user_id);
 
-        client.on('message', MyServer.onMessage);
+        connection.on('message', MyServer.onMessage);
     
-        client.on('close', MyServer.onClose);
+        connection.on('close', MyServer.onClose);
     },
 
     httpHandler: function(request, response) {
         console.log("REQUEST: " + request.url );
-        var url_info = url.parse( request.url, true ); //all the request info is here
+        var url_info = parse( request.url, true ); //all the request info is here
         var pathname = url_info.pathname; //the address
         var params = url_info.query; //the parameters
         
@@ -177,98 +125,6 @@ var MyServer = {
     },
 
     // Websocket functions
-    createNewClient: function(connection) {
-        /* Add the connection to the clients array and extends
-        the fields of the connection so it has user_id and room_name */
-
-        connection.user_id = MyServer.client_id_last
-
-        MyServer.client_id_last += 1;
-
-        MyServer.clients[connection.user_id] = connection;
-
-        return connection;
-    },
-
-    sendUserInfo: function (connection) {
-        var info = {
-            type: "connection",
-            data: {
-                user_id: connection.user_id,
-                rooms_data: MyServer.rooms,
-                animations_data: MyServer.animations
-            }
-        };
-    
-        connection.send(JSON.stringify(info));
-
-    },
-
-    sendUsersInRoom: function(connection) {
-        var room_id = connection.room_id;
-        var users = MyServer.rooms[room_id].users;
-
-        var paylaod = {
-            type: "room_info",
-            data: {
-                users: users
-            }
-        };
-    
-        connection.send(JSON.stringify(paylaod));
-    },
-
-    /* createRoom: function(room_name) {
-        var room = {
-            room_name: room_name,
-            clients: []
-        }
-        MyServer.rooms[room_name] = room;
-    }, */
-
-    addClientToRoom: function (client, room_id, user_data) {
-        // Add room_id to client
-        client.room_id = room_id;
-
-        MyServer.rooms[room_id].users[user_data.user_id] = user_data; // Add user information to the room
-    },
-
-    broadcastPayload: function(connection, payload) {
-        var room_id = connection.room_id;
-        if (!room_id) {
-            return;
-        }
-
-        var users = MyServer.rooms[room_id].users;
-
-        users.forEach(user => {
-            var client = MyServer.clients[user.user_id];
-            if (!client || client === connection) {
-                return;
-            }
-            client.sendUTF(JSON.stringify(payload));
-        });
-    },
-    //podem ajuntar amb la anterior
-    broadcastPayloadToClient: function(connection, payload, clients) {
-        var room_name = connection.room_name;
-        
-        clients.forEach(client => {
-            client.sendUTF(JSON.stringify(payload));
-        });
-    },
-    
-    broadcastOnNewUserConnected: function (connection, user_data) {
-        var payload = {
-            type: "connection_new_user",
-            data: {
-                user_data: user_data
-            }
-        };
-
-        MyServer.broadcastPayload(connection, payload);
-    },
-
     onMessage: function(message) {
        
         if (message.type !== 'utf8') {
@@ -292,66 +148,51 @@ var MyServer = {
             var target_ids = msg.target_ids;
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
-            MyServer.broadcastPayloadToClient(connection, payload, target_ids);
+            wsClientOperator.broadcastPayloadToClients(target_ids, payload);
             return;
-        }
+        } 
 
-        if(msg["type"] == "user_connect_room") {
+        else if(msg["type"] == "user_connect_room") {
             var user_data = msg["user_data"];
+            var user_id = user_data.user_id;
             var room_id = user_data["room_id"];
             connection.room_id = room_id;
-            MyServer.addClientToRoom(connection, room_id, user_data);
-            MyServer.broadcastOnNewUserConnected(connection, user_data);
-            MyServer.sendUsersInRoom(connection);
+
+            userOperator.addUserInRoom(user_data, room_id);
+
+            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
+            wsClientOperator.sendUsersInRoom(user_id);
+
             return;
         }
 
-        if(msg["type"] == "on_user_update_position") {
+        else if(msg["type"] == "user_update_position") {
             var user_id = msg["user_id"];
             var target_position = msg["target_position"];
 
             // Update user position in our registry
-            var room_id = connection.room_id;
-            var user = MyServer.rooms[room_id].users[user_id];
-            console.log(user.target_position);
-            user.target_position = target_position;
-            console.log(user.target_position);
-
-            MyServer.broadcastPayload(connection, payload);
+            userOperator.updateUserTargetPosition(user_id, target_position);
+            wsClientOperator.broadcastPayload(user_id, payload)
             return;
         }
 
-        MyServer.broadcastPayload(connection, payload);
+        else {
+            var user_id = connection.user_id;
+            wsClientOperator.broadcastPayload(user_id, payload);
+        }
     },
 
     onClose: function (event) {
         var connection = this;
         var user_id = connection.user_id;
-        var room_id = connection.room_id;
+        var room = userOperator.getUserRoom(user_id);
 
-        console.log("USER " + user_id + " IS GONE");
-
-
-        // Delete from clients
-        MyServer.clients.splice(user_id, 1);
-
-        if(!room_id) { // If no room id, don't do anything else
-            return;
+        if(room) {
+            var room_id = room.room_id;
+            userOperator.removeUserFromRoom(user_id, room_id);
         }
 
-        var room = MyServer.rooms[room_id];
-
-        var payload = {
-            type: "disconnection_user",
-            data: {
-                user_id: user_id
-            }
-        }
-
-        // Delete user from room users
-        room.users.splice(user_id, 1);
-
-        MyServer.broadcastPayload(connection, payload);
+        wsClientOperator.onCloseBroadcast(user_id);
     },
 
     // HTTP requests functions
@@ -383,30 +224,19 @@ var MyServer = {
 
     // Debug
     usersConnectedAndRooms: function() {
-        var counterFunction = function(accumalator, elem) {
-            var elemIsNull = !elem;
-            if(elemIsNull){
-                return accumalator;
-            }
-            return accumalator + 1;
-        }
-        var rooms = MyServer.rooms;
-        var clients = MyServer.clients;
-        var num_clients = clients.length == 0 ? 
-                          0 : 
-                          clients.reduce(counterFunction, 0);
+        var rooms =     roomOperator.getAllRoomsAvailable();
+        var clients = wsClientOperator.getAllClients();
+        var num_clients = clients.size;
 
         console.log("\n\n\n\n\n");
         console.log("---------------------------------");
         console.log("--------------DEBUG--------------")
         console.log("Num of websocket clients ", num_clients);
 
-        rooms.forEach((room) => {
-            var room_id = room.room_id;
+        rooms.forEach((room, id) => {
+            var room_id = id;
             var users = room.users;
-            var num_users = users.length == 0 ? 
-                            0 : 
-                            users.reduce(counterFunction, 0);
+            var num_users = users.size;
 
             console.log("------------------");
             console.log("ROOM ", room_id);

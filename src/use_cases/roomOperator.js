@@ -1,0 +1,43 @@
+import { IRoomRepository } from "./interfaces/iRoomRepository.js";
+
+export class RoomOperator {
+    constructor(world, roomRepository) {
+        var isRoomRepo = roomRepository instanceof IRoomRepository;
+
+        if(!isRoomRepo) {
+            throw new Error("IRoomRepository implementation required");
+        }
+        
+        this.roomRepository = roomRepository;
+        this.world = world;
+    }
+
+    getAllUsersInRoom(room_id) {
+        var users = this.world.getAllUsersInRoom(room_id);
+        console.log("[Room operator] Users in room: " + JSON.stringify(users));
+
+        return users;
+    }
+
+    getRoom(room_id){
+        return this.world.getRoom(room_id);
+    }
+    
+    addRoom(room){
+        this.world.addRoom(room);
+
+        this.roomRepository.addRoom(room);
+    }
+
+    getAllRoomsAvailable(){
+        return this.roomRepository.getRooms();
+    }
+
+    loadRoomsInWorld() {
+        var rooms = this.getAllRoomsAvailable();
+
+        rooms.forEach(room => {
+            this.world.addRoom(room);
+        });
+    }
+}
