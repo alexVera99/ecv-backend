@@ -256,11 +256,12 @@ var MyServer = {
         var connection = this;
         var user_id = connection.user_id;
 
-        userOperator.removeUserFromWorld(user_id);
 
         wsClientOperator.removeClient(user_id);
 
         wsClientOperator.onCloseBroadcast(user_id);
+        userOperator.removeUserFromWorld(user_id);
+
     },
 
     // HTTP requests functions
@@ -321,7 +322,6 @@ var MyServer = {
             
         })
 
-        console.log(animationOperator.getAllAnimations());
 
         console.log("---------------------------------");
         console.log("---------------------------------");

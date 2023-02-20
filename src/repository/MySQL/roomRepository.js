@@ -94,7 +94,6 @@ export class RoomRepository extends IRoomRepository {
         });
         
 
-        console.log("Room with id: " + room_id + " has been created.");
     }
 
     deleteRoom(id) {
@@ -102,12 +101,10 @@ export class RoomRepository extends IRoomRepository {
     
         var sql = "DELETE FROM "+this.table +" WHERE id = ? ";
         this.connector.executeQueryWithParams(sql,param);
-        console.log("Room with id " + id + " has been deleted");
     }
 
     updateRoom(room) {
         var room_id = room.room_id;
-        console.log("Room with id: " + room_id + " has been updated.");
     }
 
     parseRoom(room_data, exits) {

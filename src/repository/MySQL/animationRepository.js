@@ -91,12 +91,10 @@ export class AnimationRepository extends IAnimationRepository {
         var param = [id];
         var sql = "DELETE FROM "+this.table +" WHERE id = ? ";
         this.connector.executeQueryWithParams(sql,param);
-        console.log("Animation with id " + id + " has been deleted");
     }
 
     updateAnimation(animation) {
         var id = animation.avatar_id;
-        console.log("Animation with id" + id + " has been updated");
     }
 
     parseAnimation(anim_data){

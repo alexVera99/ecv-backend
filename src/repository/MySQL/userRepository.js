@@ -35,7 +35,6 @@ export class UserRepository extends IUserRepository {
             var user = this.parseUser(data);
             users.push(user);
         }
-        console.log(users);
         /*
         let users = map((user) => {
             var user = this.parseUser(user_data);
@@ -53,15 +52,12 @@ export class UserRepository extends IUserRepository {
         var values = [username, room_id, animation_id, position];
         var sql = "INSERT INTO " + this.table + " (username, room_id, animation_id, position) VALUES (?, ?, ?, ?)";
         this.connector.query(sql, values);
-        console.log("User created");
     }
 
     deleteUser(id) {
-        console.log("User deleted");
     }
 
     updateUser(user) {
-        console.log("User updated");
     }
 
     changeUserRoom(user_id, room_id) {

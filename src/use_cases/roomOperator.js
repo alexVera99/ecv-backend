@@ -33,7 +33,6 @@ export class RoomOperator {
 
     loadRoomsInWorld() {
         this.roomRepository.getRooms().then( r => r.forEach(room => {
-            console.log("r: "+r);
             this.world.addRoom(room);
         }));
          

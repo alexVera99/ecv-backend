@@ -53,8 +53,6 @@ export class WSClientOperator {
         const room_data = mapToObj(roomsMap);
 
 
-        console.log(animations);
-        console.log("rooms: "+room_data);
         var info = {
             type: "connection",
             data: {
@@ -88,7 +86,6 @@ export class WSClientOperator {
 
     broadcastPayload(user_id, payload) {
         let room = this.user_operator.getUserRoom(user_id);
-
         if (!room) {
             return;
         }

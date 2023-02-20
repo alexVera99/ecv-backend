@@ -33,7 +33,6 @@ export class UserOperator{
             let room_id = user.room_id;
             return this.world.getRoom(room_id);
         } catch (error) {
-            console.log("User with id " + user_id + " doesn't have room");
             return undefined;
         }
     }

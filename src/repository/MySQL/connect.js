@@ -28,7 +28,6 @@ export class MySQLConnector {
                     reject(err);
                 }
 
-                console.log(results);
                 resolve(results);
 
                 client.end();
