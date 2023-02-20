@@ -32,6 +32,10 @@ export class WSClientOperator {
         return this.client_manager.my_clients;
     }
 
+    removeClient(user_id) {
+        this.client_manager.removeClient(user_id);
+    }
+
     sendMessageToClient(user_id, message) {
         const connection = this.client_manager.getConnection(user_id);
 

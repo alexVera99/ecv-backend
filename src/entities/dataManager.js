@@ -70,11 +70,18 @@ export class World{
 
     removeUser(user_id) {
         var user = this.getUser(user_id);
+        
+        var notUserCreated = !user;
+        if (notUserCreated) {
+            return;
+        }
         var room_id = user.room_id;
         // Delete from users list
         this.users.delete(user_id)
         // Delete from users list of the room
-        this.rooms.get(room_id).users.delete(user_id);
+        if(room_id) {
+            this.rooms.get(room_id).users.delete(user_id);
+        }
     }
 
 }

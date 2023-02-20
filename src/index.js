@@ -215,7 +215,7 @@ var MyServer = {
         }
 
         else if(msg["type"] == "user_change_room") {
-            let user_id = msg["user_id"];
+            let user_id = msg["user"].user_id;
             let room_id = msg["room_id"];
 
             userOperator.changeUserRoom(user_id, room_id);
@@ -233,12 +233,10 @@ var MyServer = {
     onClose: function (event) {
         var connection = this;
         var user_id = connection.user_id;
-        var room = userOperator.getUserRoom(user_id);
 
-        if(room) {
-            var room_id = room.room_id;
-            userOperator.removeUserFromRoom(user_id, room_id);
-        }
+        userOperator.removeUserFromWorld(user_id);
+
+        wsClientOperator.removeClient(user_id);
 
         wsClientOperator.onCloseBroadcast(user_id);
     },

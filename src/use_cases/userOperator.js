@@ -53,8 +53,12 @@ export class UserOperator{
         this.world.removeUserFromRoom(user_id, room_id);
     }
 
-    removeUser(user_id) {
+    removeUserFromWorld(user_id) {
         this.world.removeUser(user_id);
+    }
+
+    removeUser(user_id) {
+        this.userRepository.removeUserFromWorld(user_id);
 
         this.userRepository.deleteUser(user_id);
     }
