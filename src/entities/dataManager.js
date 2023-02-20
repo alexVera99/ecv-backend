@@ -17,8 +17,16 @@ export class World{
         return this.rooms.get(room_id);
     }
 
+    getAllRooms(){
+        return this.rooms;
+    }
+
     getAnimation(id){
         return this.animations.get(id);
+    }
+
+    getAllAnimations(){
+        return this.animations;
     }
 
     addUserToRoom(user, room_id){
@@ -30,10 +38,13 @@ export class World{
     }
 
     addRoom(room){
+        console.log("adding room:" + typeof(room));
         this.rooms.set(room.room_id, room);
+        console.log("rooms in world: " + this.rooms.get(1));
     }
 
     addAnimation(animation){
+        //console.log("adding animation: "+ animation);
         this.animations.set(animation.avatar_id, animation);
     }
 

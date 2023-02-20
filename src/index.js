@@ -28,12 +28,46 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
+
+// TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
+import { MySQLConnector } from './repository/MySQL/connect.js';
+import { User } from './entities/dataContainers.js';
+
+var connector = new MySQLConnector();
+/* var res = await connector.selectAll("users");
+console.log(res); */
+
+let table = "users";
+let id = 1;
+
+let query = "SELECT * FROM " + table + " AS us, animations AS anim" + 
+" WHERE us.id = ? AND us.animation_id = anim.id";
+let params = [id];
+
+var res = await connector.executeQueryWithParams(query, params);
+
+console.log(res);
+
+var user_data = res[0];
+
+var user = new User();
+user.user_id = user_data["id"];
+user.username = user_data["username"];
+user.room_id = user_data["room_id"];
+user.position = user_data["position"];
+
+console.log(user);
+// END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
+
+//var connector = new MySQLConnector();
+
+
 var world = new World();
 
 // MySQL Repositories
-var userRepository = new UserRepository();
-var animationRepository = new AnimationRepository();
-var roomRepository = new RoomRepository();
+var userRepository = new UserRepository(connector);
+var animationRepository = new AnimationRepository(connector);
+var roomRepository = new RoomRepository(connector);
 
 // Data operators
 var userOperator = new UserOperator(world, userRepository);
@@ -79,7 +113,7 @@ var MyServer = {
 
         let user_id = wsClientOperator.addClient(connection);
         
-        wsClientOperator.sendUserInitData(user_id);
+        wsClientOperator.sendUserInitData(user_id,world);
 
         connection.on('message', MyServer.onMessage);
     
@@ -239,6 +273,7 @@ var MyServer = {
         rooms.forEach((room, id) => {
             var room_id = id;
             var users = room.users;
+            console.log(room);
             var num_users = users.size;
 
             console.log("------------------");
@@ -254,6 +289,8 @@ var MyServer = {
             console.log("------------------");
             
         })
+
+        console.log(animationOperator.getAllAnimations());
 
         console.log("---------------------------------");
         console.log("---------------------------------");

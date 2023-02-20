@@ -25,19 +25,17 @@ export class RoomOperator {
     
     addRoom(room){
         this.world.addRoom(room);
-
-        this.roomRepository.addRoom(room);
     }
 
     getAllRoomsAvailable(){
-        return this.roomRepository.getRooms();
+        return this.world.getAllRooms();
     }
 
     loadRoomsInWorld() {
-        var rooms = this.getAllRoomsAvailable();
-
-        rooms.forEach(room => {
+        this.roomRepository.getRooms().then( r => r.forEach(room => {
+            console.log("r: "+r);
             this.world.addRoom(room);
-        });
+        }));
+         
     }
 }

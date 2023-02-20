@@ -25,15 +25,14 @@ export class AnimationOperator {
     }
 
     getAllAnimations(){
-        return this.animationRepository.getAnimations();
+        return this.world.getAllAnimations();
     }
 
     loadAnimationsInWorld() {
-        var animations = this.getAllAnimations();
-
-        animations.forEach(anim => {
+        this.animationRepository.getAnimations().then( a => a.forEach(anim => {
             this.world.addAnimation(anim);
-        });
+        }));
+         
     }
 
 }
