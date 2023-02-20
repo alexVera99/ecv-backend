@@ -106,6 +106,16 @@ export class WSClientOperator {
         });
     }
 
+    broadcastPayloadToAll(payload) {
+        let users = this.user_operator.getAllUsers();
+
+        users.forEach((user) => {
+            let id = user.user_id;
+
+            this.sendMessageToClient(id, payload);
+        })
+    }
+
     broadcastOnNewUserConnected(user_id, user_data) {
         var payload = {
             type: "connection_new_user",

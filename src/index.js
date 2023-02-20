@@ -214,6 +214,16 @@ var MyServer = {
             return;
         }
 
+        else if(msg["type"] == "user_change_room") {
+            let user_id = msg["user_id"];
+            let room_id = msg["room_id"];
+
+            userOperator.changeUserRoom(user_id, room_id);
+
+            wsClientOperator.broadcastPayloadToAll(payload);
+            wsClientOperator.sendUsersInRoom(user_id);
+        }
+
         else {
             var user_id = connection.user_id;
             wsClientOperator.broadcastPayload(user_id, payload);
