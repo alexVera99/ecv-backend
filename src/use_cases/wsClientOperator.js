@@ -43,9 +43,14 @@ export class WSClientOperator {
     }
 
     sendUserInitData(user_id) {
-        var room_data = this.room_operator.getAllRoomsAvailable();
-        var animations = this.animation_operator.getAllAnimations();
+        var roomsMap = this.room_operator.getAllRoomsAvailable();
+        var animationsMap = this.animation_operator.getAllAnimations();
+        const animations = mapToObj(animationsMap);
+        const room_data = mapToObj(roomsMap);
 
+
+        console.log(animations);
+        console.log("rooms: "+room_data);
         var info = {
             type: "connection",
             data: {

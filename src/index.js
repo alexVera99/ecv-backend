@@ -56,14 +56,15 @@ user.position = user_data["position"];
 console.log(user);
 // END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
 
+//var connector = new MySQLConnector();
 
 
 var world = new World();
 
 // MySQL Repositories
-var userRepository = new UserRepository();
-var animationRepository = new AnimationRepository();
-var roomRepository = new RoomRepository();
+var userRepository = new UserRepository(connector);
+var animationRepository = new AnimationRepository(connector);
+var roomRepository = new RoomRepository(connector);
 
 // Data operators
 var userOperator = new UserOperator(world, userRepository);
@@ -109,7 +110,7 @@ var MyServer = {
 
         let user_id = wsClientOperator.addClient(connection);
         
-        wsClientOperator.sendUserInitData(user_id);
+        wsClientOperator.sendUserInitData(user_id,world);
 
         connection.on('message', MyServer.onMessage);
     
@@ -269,6 +270,7 @@ var MyServer = {
         rooms.forEach((room, id) => {
             var room_id = id;
             var users = room.users;
+            console.log(room);
             var num_users = users.size;
 
             console.log("------------------");
@@ -284,6 +286,8 @@ var MyServer = {
             console.log("------------------");
             
         })
+
+        console.log(animationOperator.getAllAnimations());
 
         console.log("---------------------------------");
         console.log("---------------------------------");

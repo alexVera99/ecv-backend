@@ -29,16 +29,30 @@ export class UserRepository extends IUserRepository {
 
         let res = await this.connector.executeQuery(query);
 
+        let users = [];
+        for(data in res)
+        {
+            var user = this.parseUser(data);
+            users.push(user);
+        }
+        console.log(users);
+        /*
         let users = map((user) => {
-            let user = this.parseUser(user_data);
-        });
+            var user = this.parseUser(user_data);
+        });*/
 
-        let user_data = res[0];
 
-        return user;
+        return users;
     }
 
     createUser(user) {
+        var username = user.username;
+        var room_id = user.room_id;
+        var animation_id = user.animation.avatar_id;
+        var position = 0;
+        var values = [username, room_id, animation_id, position];
+        var sql = "INSERT INTO " + this.table + " (username, room_id, animation_id, position) VALUES (?, ?, ?, ?)";
+        this.connector.query(sql, values);
         console.log("User created");
     }
 
