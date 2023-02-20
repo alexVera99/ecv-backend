@@ -13,6 +13,10 @@ export class World{
         return this.rooms.get(room_id).users;
     }
 
+    getAllUsers() {
+        return this.users;
+    }
+
     getRoom(room_id){
         return this.rooms.get(room_id);
     }
@@ -31,6 +35,8 @@ export class World{
 
     addUserToRoom(user, room_id){
         var user_id = user.user_id;
+
+        user.room_id = room_id;
 
         this.users.set(user_id, user); // A user in users map is always in a room!!!
 
@@ -51,12 +57,9 @@ export class World{
     changeRoom(user_id, room_id){
         var user = this.getUser(user_id);
         
-        this.removeUserFromRoom(user_id, room_id);
+        this.removeUserFromRoom(user_id, user.room_id);
         
-        user.room_id = room_id;
-
-        var new_room = this.getRoom(room_id);
-        new_room.users.set(this.currentUserId, user);
+        this.addUserToRoom(user, room_id);
     }
 
     removeUserFromRoom(user_id, room_id) {
@@ -67,11 +70,18 @@ export class World{
 
     removeUser(user_id) {
         var user = this.getUser(user_id);
+        
+        var notUserCreated = !user;
+        if (notUserCreated) {
+            return;
+        }
         var room_id = user.room_id;
         // Delete from users list
         this.users.delete(user_id)
         // Delete from users list of the room
-        this.rooms.get(room_id).users.delete(user_id);
+        if(room_id) {
+            this.rooms.get(room_id).users.delete(user_id);
+        }
     }
 
 }

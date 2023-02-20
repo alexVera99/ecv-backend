@@ -32,6 +32,10 @@ export class WSClientOperator {
         return this.client_manager.my_clients;
     }
 
+    removeClient(user_id) {
+        this.client_manager.removeClient(user_id);
+    }
+
     sendMessageToClient(user_id, message) {
         const connection = this.client_manager.getConnection(user_id);
 
@@ -104,6 +108,16 @@ export class WSClientOperator {
         user_ids.forEach((user_id) => {
             this.sendMessageToClient(user_id, payload)
         });
+    }
+
+    broadcastPayloadToAll(payload) {
+        let users = this.user_operator.getAllUsers();
+
+        users.forEach((user) => {
+            let id = user.user_id;
+
+            this.sendMessageToClient(id, payload);
+        })
     }
 
     broadcastOnNewUserConnected(user_id, user_data) {

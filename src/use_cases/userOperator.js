@@ -38,6 +38,10 @@ export class UserOperator{
         }
     }
 
+    getAllUsers() {
+        return this.world.getAllUsers();
+    }
+
     updateUserTargetPosition(user_id, target_position) {
         let user = this.getUser(user_id);
 
@@ -49,14 +53,18 @@ export class UserOperator{
         this.world.removeUserFromRoom(user_id, room_id);
     }
 
-    removeUser(user_id) {
+    removeUserFromWorld(user_id) {
         this.world.removeUser(user_id);
+    }
+
+    removeUser(user_id) {
+        this.userRepository.removeUserFromWorld(user_id);
 
         this.userRepository.deleteUser(user_id);
     }
 
     changeUserRoom(user_id, room_id){
-        this.world.changeUserRoom(user_id, room_id)
+        this.world.changeRoom(user_id, room_id)
 
         this.userRepository.changeUserRoom(user_id, room_id);
     }
