@@ -18,8 +18,8 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-DROP TABLE IF EXISTS `animations`;
-CREATE TABLE `animations` (
+DROP TABLE IF EXISTS `MOONSCAPE_animations`;
+CREATE TABLE `MOONSCAPE_animations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `show_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE `animations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `exits`;
-CREATE TABLE `exits` (
+DROP TABLE IF EXISTS `MOONSCAPE_exits`;
+CREATE TABLE `MOONSCAPE_exits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `position` char(100) NOT NULL DEFAULT '0',
   `height` float NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE `exits` (
   CONSTRAINT `exits_ibfk_4` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `rooms`;
-CREATE TABLE `rooms` (
+DROP TABLE IF EXISTS `MOONSCAPE_rooms`;
+CREATE TABLE `MOONSCAPE_rooms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `scale` float NOT NULL DEFAULT '1',
@@ -60,8 +60,8 @@ CREATE TABLE `rooms` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
+DROP TABLE IF EXISTS `MOONSCAPE_users`;
+CREATE TABLE `MOONSCAPE_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` char(50) NOT NULL,
   `room_id` int(11) DEFAULT NULL,
@@ -74,19 +74,19 @@ CREATE TABLE `users` (
   CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-INSERT INTO `animations` (`id`, `image_uri`, `show_uri`, `scale`, `facing_right`, `facing_left`, `facing_front`, `facing_back`, `walking_frames`, `idle_frames`, `talking_frames`) VALUES
+INSERT INTO `MOONSCAPE_animations` (`id`, `image_uri`, `show_uri`, `scale`, `facing_right`, `facing_left`, `facing_front`, `facing_back`, `walking_frames`, `idle_frames`, `talking_frames`) VALUES
 (1, '../imgs/char1.png', '../imgs/avatar1.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
 (2, '../imgs/char2.png', '../imgs/avatar2.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]');
 
-INSERT INTO `exits` (`id`, `position`, `height`, `width`, `to_room_id`, `room_id`) VALUES
+INSERT INTO `MOONSCAPE_exits` (`id`, `position`, `height`, `width`, `to_room_id`, `room_id`) VALUES
 (1, '[364, 125]', 41, 24, 2, 1),
 (2, '[518, 164]', 35, 20, 1, 2);
 
-INSERT INTO `rooms` (`id`, `name`, `scale`, `image_uri`, `offset`, `range`) VALUES
+INSERT INTO `MOONSCAPE_rooms` (`id`, `name`, `scale`, `image_uri`, `offset`, `range`) VALUES
 (1, 'street1', 2.5, '../imgs/bg1.png', 0, '[-200,200]'),
 (2, 'street2', 2.05, '../imgs/city.png', 0, '[-300,300]');
 
-INSERT INTO `users` (`id`, `username`, `room_id`, `animation_id`, `position`) VALUES
+INSERT INTO `MOONSCAPE_users` (`id`, `username`, `room_id`, `animation_id`, `position`) VALUES
 (1, 'Alex', 1, 1, 0),
 (2, 'Anna', 1, 2, 100);
 
