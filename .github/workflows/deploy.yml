@@ -36,6 +36,7 @@ jobs:
         cp -rf src deployment
         cp -rf package* deployment
         cp -rf run_in_server.sh deployment
+        cp -rf database deployment
     
     - name: Install sshpass
       run: |
