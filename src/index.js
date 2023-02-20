@@ -139,6 +139,18 @@ var MyServer = {
 
         if (pathname == "/") {
             response.end("Welcome :)"); //send a response
+        }else if(pathname == "/login"){
+            //get username and password
+            //process
+                //checked if user is already in world 
+                //hash password, check db (get pswr form db and compare)
+            //return answer (connect: 200 or wrong credentials: 403)
+        }else if(pathname == "/signup"){
+            //get username and password
+            // check not exist -- return(error)
+            //hash pasword
+            //add user to db
+            //return success 200
         }
 
     },
@@ -224,7 +236,17 @@ var MyServer = {
             wsClientOperator.sendUsersInRoom(user_id);
         }
 
-        else {
+        else if(msg["type"] == "user_change_room") {
+            let user_id = msg["user"].user_id;
+            let room_id = msg["room_id"];
+
+            userOperator.changeUserRoom(user_id, room_id);
+
+            wsClientOperator.broadcastPayloadToAll(payload);
+            wsClientOperator.sendUsersInRoom(user_id);
+        }
+
+        else if(msg["type"] == "msg") {
             var user_id = connection.user_id;
             wsClientOperator.broadcastPayload(user_id, payload);
         }
