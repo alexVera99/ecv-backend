@@ -4,8 +4,8 @@ import { IUserRepository } from "../../use_cases/interfaces/iUserRepository.js";
 export class UserRepository extends IUserRepository {
     constructor(connector) {
         super();
-        this.table = "users";
-        this.anim_table = "animations";
+        this.table = "MOONSCAPE_users";
+        this.anim_table = "MOONSCAPE_animations";
         this.connector = connector;
     }
 

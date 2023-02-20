@@ -34,8 +34,9 @@ import { MySQLConnector } from './repository/MySQL/connect.js';
 import { User } from './entities/dataContainers.js';
 
 var connector = new MySQLConnector();
+
 /* var res = await connector.selectAll("users");
-console.log(res); */
+console.log(res); *//*
 
 let table = "users";
 let id = 1;
@@ -60,7 +61,7 @@ console.log(user);
 // END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
 
 //var connector = new MySQLConnector();
-
+*/
 
 var world = new World();
 

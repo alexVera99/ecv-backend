@@ -4,7 +4,7 @@ import { IAnimationRepository } from "../../use_cases/interfaces/iAnimationRepos
 export class AnimationRepository extends IAnimationRepository {
     constructor(connector){
         super();
-        this.table = "animations";
+        this.table = "MOONSCAPE_animations";
         this.connector = connector;
 
         this.animationData = {
