@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "DEACTIVATEDDDDDDD" ]
 
 env:
   NODE_VERSION: '18.13.0'
