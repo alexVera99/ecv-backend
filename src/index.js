@@ -10,6 +10,9 @@ import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
+import { config } from 'dotenv';
+
+config();
 
 var server_port = process.env.NODE_SERVER_PORT || 8081;
 var isDebugMode =  (process.env.APP_DEBUG === "true");
