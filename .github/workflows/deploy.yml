@@ -34,6 +34,8 @@ jobs:
         cp -rf node_modules deployment
         cp -rf public deployment
         cp -rf src deployment
+        cp -rf package* deployment
+        cp -rf run_in_server.sh deployment
     
     - name: Install sshpass
       run: |
