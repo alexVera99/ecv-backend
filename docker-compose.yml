@@ -16,7 +16,7 @@ services:
       - .:/home/node/app
     ports:
       - ${NODE_FORWARD_PORT}:${NODE_SERVER_PORT}
-    command: "npm start"
+    command: "./node_modules/nodemon/bin/nodemon.js start"
     depends_on:
       - db
     networks:
