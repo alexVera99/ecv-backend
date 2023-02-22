@@ -11,10 +11,13 @@ import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
 import { config } from 'dotenv';
+import bodyParser from "body-parser";
+import cors from "cors";
 
 config();
 
 var server_port = process.env.NODE_SERVER_PORT || 8081;
+const client_url = process.env.CLIENT_URL;
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -28,6 +31,37 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
+const corsOptions = {
+    origin: client_url,
+    allowedHeaders: ['Content-Type']
+};
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+app.use( bodyParser.json() ); // to support JSON-encoded bodies
+app.use( bodyParser.urlencoded({extended: true}) ); //unicode
+//example of a POST request with parameters inside the body from Form
+app.all('/signup', function (req, res) {
+    console.log(req.body);
+
+    res.send( JSON.stringify(req.body));
+});
+
+/* fetch('http://127.0.0.1:8081/signup', {
+  method: 'POST', // or 'PUT'
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify( {id: "2"} ),
+})
+  .then((response) => response.json())
+  .then((data) => {
+    console.log('Success:', data);
+  })
+  .catch((error) => {
+    console.log("Hello")
+    console.error('Error:', error);
+  }); */
 
 // TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
 import { MySQLConnector } from './repository/MySQL/connect.js';

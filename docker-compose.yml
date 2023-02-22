@@ -12,6 +12,7 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - CLIENT_URL=${CLIENT_URL}
     volumes:
       - .:/home/node/app
     ports:
