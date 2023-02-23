@@ -11,6 +11,7 @@ import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
 import { Authorizer } from './use_cases/auth.js';
+import { MySQLConnector } from './repository/MySQL/connect.js';
 import { config } from 'dotenv';
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -89,56 +90,7 @@ app.all('/signup', function (req, res) {
     authorizer.signup(username, password, animation_id, onsignup);
 });
 
-/* fetch('http://127.0.0.1:8081/signup', {
-  method: 'POST', // or 'PUT'
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify( {id: "2"} ),
-})
-  .then((response) => response.json())
-  .then((data) => {
-    console.log('Success:', data);
-  })
-  .catch((error) => {
-    console.log("Hello")
-    console.error('Error:', error);
-  }); */
-
-
-// TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
-import { MySQLConnector } from './repository/MySQL/connect.js';
-import { User } from './entities/dataContainers.js';
-
 var connector = new MySQLConnector();
-
-/* var res = await connector.selectAll("users");
-console.log(res); *//*
-
-let table = "users";
-let id = 1;
-
-let query = "SELECT * FROM " + table + " AS us, animations AS anim" + 
-" WHERE us.id = ? AND us.animation_id = anim.id";
-let params = [id];
-
-var res = await connector.executeQueryWithParams(query, params);
-
-console.log(res);
-
-var user_data = res[0];
-
-var user = new User();
-user.user_id = user_data["id"];
-user.username = user_data["username"];
-user.room_id = user_data["room_id"];
-user.position = user_data["position"];
-
-console.log(user);
-// END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
-
-//var connector = new MySQLConnector();
-*/
 
 var world = new World();
 
