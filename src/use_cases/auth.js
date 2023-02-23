@@ -26,12 +26,13 @@ export class Authorizer {
         });
     }
 
-    signup (username, password, animation_id){
+    signup (username, password, animation_id, callback){
         bcrypt.hash(password, this.saltRounds, (err, hash) => {
             if(err) {
                 throw err;
             }
             this.userRepository.createUser(username, hash, animation_id);
+            callback(err);
         })
     }
 }

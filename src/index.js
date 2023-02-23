@@ -10,6 +10,7 @@ import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
+import { Authorizer } from './use_cases/auth.js';
 import { config } from 'dotenv';
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -43,8 +44,49 @@ app.use( bodyParser.urlencoded({extended: true}) ); //unicode
 //example of a POST request with parameters inside the body from Form
 app.all('/signup', function (req, res) {
     console.log(req.body);
+    let payload = req.body;
 
-    res.send( JSON.stringify(req.body));
+    let username = payload["username"];
+    let password = payload["password"];
+    let animation_id = payload["animation_id"];
+
+    let is_username_not_defined = !username;
+    let is_password_not_defined = !password;
+    let is_animation_id_not_defined = !animation_id;
+
+    if (is_username_not_defined || is_password_not_defined || is_animation_id_not_defined) {
+        let status_code = 400;
+        let message = "Error creating user";
+        let payload = {
+            message: message
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+    
+    let authorizer = new Authorizer(userRepository);
+
+    let onsignup = (err) => {
+        let message;
+        let status_code;
+
+        if(err) {
+            message = "Error creating user";
+            status_code = 400;
+        }
+        else{
+            message = "User created successfully";
+            status_code = 201;
+        }
+        let payload = {
+            message: message
+        };
+
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.signup(username, password, animation_id, onsignup);
 });
 
 /* fetch('http://127.0.0.1:8081/signup', {
@@ -115,17 +157,6 @@ var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animatio
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
 animationOperator.loadAnimationsInWorld();
-
-// TRYINNG SIGN UP
-import { Authorizer } from './use_cases/auth.js';
-
-let authorizer = new Authorizer(userRepository);
-let username = "Anna";
-let pass = "123456789";
-let animation_id = 1;
-//authorizer.signup(username, pass, animation_id);
-
-// END
 
 var MyServer = {
     defaut_room_name: "default_room",
