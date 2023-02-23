@@ -63,6 +63,7 @@ app.all('/signup', function (req, res) {
     console.error('Error:', error);
   }); */
 
+
 // TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
 import { MySQLConnector } from './repository/MySQL/connect.js';
 import { User } from './entities/dataContainers.js';
@@ -114,6 +115,17 @@ var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animatio
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
 animationOperator.loadAnimationsInWorld();
+
+// TRYINNG SIGN UP
+import { Authorizer } from './use_cases/auth.js';
+
+let authorizer = new Authorizer(userRepository);
+let username = "Anna";
+let pass = "123456789";
+let animation_id = 1;
+//authorizer.signup(username, pass, animation_id);
+
+// END
 
 var MyServer = {
     defaut_room_name: "default_room",

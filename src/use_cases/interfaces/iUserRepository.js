@@ -6,6 +6,9 @@ export class IUserRepository {
         if(!this.getUsers) {
             throw new Error("getUsers() not defined!");
         }
+        if(!this.getUserByUsername) {
+            throw new Error("getUserByUsername() not defined!");
+        }
         if(!this.createUser) {
             throw new Error("createUser() not defined!");
         }

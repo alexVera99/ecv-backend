@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-02-20 16:09:36.7080
+-- Generation Time: 2023-02-23 01:52:08.6080
 -- -------------------------------------------------------------
 
 
@@ -32,12 +32,12 @@ CREATE TABLE `MOONSCAPE_animations` (
   `idle_frames` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `talking_frames` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_exits`;
 CREATE TABLE `MOONSCAPE_exits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `position` char(100) NOT NULL DEFAULT '0',
+  `position` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `height` float NOT NULL,
   `width` float NOT NULL,
   `to_room_id` int(11) DEFAULT NULL,
@@ -45,8 +45,8 @@ CREATE TABLE `MOONSCAPE_exits` (
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
   KEY `to_room_id` (`to_room_id`),
-  CONSTRAINT `exits_ibfk_5` FOREIGN KEY (`to_room_id`) REFERENCES `rooms` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `exits_ibfk_4` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
+  CONSTRAINT `exits_ibfk_4` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_rooms` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `exits_ibfk_5` FOREIGN KEY (`to_room_id`) REFERENCES `MOONSCAPE_rooms` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_rooms`;
@@ -63,15 +63,16 @@ CREATE TABLE `MOONSCAPE_rooms` (
 DROP TABLE IF EXISTS `MOONSCAPE_users`;
 CREATE TABLE `MOONSCAPE_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` char(50) NOT NULL,
+  `username` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `room_id` int(11) DEFAULT NULL,
   `animation_id` int(11) NOT NULL,
   `position` float NOT NULL DEFAULT '0',
+  `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
   KEY `animation_id` (`animation_id`),
-  CONSTRAINT `users_ibfk_7` FOREIGN KEY (`animation_id`) REFERENCES `animations` (`id`),
-  CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
+  CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_rooms` (`id`),
+  CONSTRAINT `users_ibfk_7` FOREIGN KEY (`animation_id`) REFERENCES `MOONSCAPE_animations` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 INSERT INTO `MOONSCAPE_animations` (`id`, `image_uri`, `show_uri`, `scale`, `facing_right`, `facing_left`, `facing_front`, `facing_back`, `walking_frames`, `idle_frames`, `talking_frames`) VALUES
@@ -93,9 +94,9 @@ INSERT INTO `MOONSCAPE_rooms` (`id`, `name`, `scale`, `image_uri`, `offset`, `ra
 (1, 'street1', 2.5, 'imgs/bg1.png', 0, '[-200,200]'),
 (2, 'street2', 2.05, 'imgs/city.png', 0, '[-300,300]');
 
-INSERT INTO `MOONSCAPE_users` (`id`, `username`, `room_id`, `animation_id`, `position`) VALUES
-(1, 'Alex', 1, 1, 0),
-(2, 'Anna', 1, 2, 100);
+INSERT INTO `MOONSCAPE_users` (`id`, `username`, `room_id`, `animation_id`, `position`, `password`) VALUES
+(1, 'Alex', NULL, 1, 0, '$2b$10$PrOlAnEIyOH85WG3YKOX3.Qgxn.k.NCWnAvVwJD7ZLcvFlMq79ZaW'),
+(2, 'Anna', NULL, 1, 0, '$2b$10$Wv5Si5Pnvnt5ZKs6BBKfp.Sou2Eg3HZ.QvuepzJb0/Z7xd.TwOPHO');
 
 
 
