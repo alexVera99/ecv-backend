@@ -9,6 +9,7 @@ import { AnimationOperator } from './use_cases/animationOperator.js';
 import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
+import { TokenRepository } from './repository/MySQL/tokenRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
 import { Authorizer } from './use_cases/auth.js';
 import { MySQLConnector } from './repository/MySQL/connect.js';
@@ -44,11 +45,10 @@ app.use( bodyParser.json() ); // to support JSON-encoded bodies
 app.use( bodyParser.urlencoded({extended: true}) ); //unicode
 //example of a POST request with parameters inside the body from Form
 app.all('/signup', function (req, res) {
-    console.log(req.body);
     let payload = req.body;
 
     let username = payload["username"];
-    let password = payload["password"];
+    let password = String(payload["password"]);
     let animation_id = payload["animation_id"];
 
     let is_username_not_defined = !username;
@@ -66,7 +66,7 @@ app.all('/signup', function (req, res) {
         return;
     }
     
-    let authorizer = new Authorizer(userRepository);
+    let authorizer = new Authorizer(userRepository, tokenRepository);
 
     let onsignup = (err) => {
         let message;
@@ -90,6 +90,100 @@ app.all('/signup', function (req, res) {
     authorizer.signup(username, password, animation_id, onsignup);
 });
 
+app.all('/login', function (req, res) {
+    let payload = req.body;
+
+    let username = payload["username"];
+    let password = String(payload["password"]);
+
+    let is_username_not_defined = !username;
+    let is_password_not_defined = !password;
+
+    if (is_username_not_defined || is_password_not_defined) {
+        let status_code = 400;
+        let message = "Missing username or password";
+        let payload = {
+            message: message
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+
+    let authorizer = new Authorizer(userRepository, tokenRepository);
+
+    let onlogin = (err, user, token) => {
+        let status_code;
+        let payload;
+
+        if(err) {
+            console.log(err);
+
+            let message = "Username or password is wrong.";
+            status_code = 401;
+
+            payload = {
+                message: message
+            };
+        }
+        else{
+            let message = "Successfully log in.";
+            status_code = 200;
+            payload = {
+                message: message,
+                user: user,
+                token: token
+            };
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.login(username, password, onlogin);
+});
+
+app.all('/logout', function (req, res) {
+    let payload = req.body;
+
+    let token = payload["token"];
+
+    let is_not_token = !token;
+
+    if (is_not_token) {
+        let status_code = 404;
+        let payload = {
+            message: "Missing token"
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+
+    let authorizer = new Authorizer(userRepository, tokenRepository);
+
+    let onlogout = (is_token_deleted) => {
+        let message;
+        let status_code;
+
+        if(!is_token_deleted) {
+            message = "Couldn't logout.";
+            status_code = 400;
+        }
+        else {
+            message = "Successfully logout.";
+            status_code = 200;
+        }
+
+        let payload = {
+            message: message,
+        };
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.logout(token, onlogout);
+});
+
+
 var connector = new MySQLConnector();
 
 var world = new World();
@@ -98,6 +192,7 @@ var world = new World();
 var userRepository = new UserRepository(connector);
 var animationRepository = new AnimationRepository(connector);
 var roomRepository = new RoomRepository(connector);
+let tokenRepository = new TokenRepository(connector);
 
 // Data operators
 var userOperator = new UserOperator(world, userRepository);

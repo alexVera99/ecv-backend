@@ -1,10 +1,10 @@
 -- -------------------------------------------------------------
--- TablePlus 5.1.0(468)
+-- TablePlus 5.3.2(490)
 --
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-02-23 01:52:08.6080
+-- Generation Time: 2023-02-25 20:16:49.5670
 -- -------------------------------------------------------------
 
 
@@ -59,6 +59,16 @@ CREATE TABLE `MOONSCAPE_rooms` (
   `range` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `MOONSCAPE_tokens`;
+CREATE TABLE `MOONSCAPE_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token` char(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `MOONSCAPE_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `MOONSCAPE_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_users`;
 CREATE TABLE `MOONSCAPE_users` (

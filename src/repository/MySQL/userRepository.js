@@ -10,7 +10,7 @@ export class UserRepository extends IUserRepository {
     }
 
     async getUserById(id) {
-        let query = "SELECT * FROM " + this.table + " AS us, animations AS anim" + 
+        let query = "SELECT * FROM " + this.table + " AS us, " + this.anim_table + " AS anim" + 
                     " WHERE us.id = ? AND us.animation_id = anim.id";
         let params = [id];
 
@@ -25,7 +25,7 @@ export class UserRepository extends IUserRepository {
 
     async getUsers() {
         let query = "SELECT * FROM " + this.table + 
-                    " AS us, animations AS anim WHERE us.animation_id = anim.id";
+                    " AS us, " + this.anim_table + " AS anim WHERE us.animation_id = anim.id";
 
         let res = await this.connector.executeQuery(query);
 
@@ -44,9 +44,10 @@ export class UserRepository extends IUserRepository {
         return users;
     }
 
-    async getUserByUsername(username) {
-    let query = "SELECT * FROM " + this.table + " AS us, animations AS anim" + 
-        " WHERE us.username = ? AND us.animation_id = anim.id";
+    async getUserWithPassword(username) {
+        let query = "SELECT * FROM " + this.table + 
+                    " AS us, " + this.anim_table + 
+                    " AS anim WHERE username = ? AND us.animation_id = anim.id";
         let params = [username];
 
         let res = await this.connector.executeQueryWithParams(query, params);
@@ -54,8 +55,12 @@ export class UserRepository extends IUserRepository {
         let user_data = res[0];
 
         let user = this.parseUser(user_data);
+        let password = user_data["password"];
 
-        return user;
+        return {
+            user: user,
+            password: password
+        };
     }
 
     createUser(username, password, animation_id) {
