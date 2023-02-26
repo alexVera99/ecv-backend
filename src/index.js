@@ -43,7 +43,7 @@ app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use( bodyParser.json() ); // to support JSON-encoded bodies
 app.use( bodyParser.urlencoded({extended: true}) ); //unicode
-//example of a POST request with parameters inside the body from Form
+
 app.all('/signup', function (req, res) {
     let payload = req.body;
 
@@ -263,20 +263,7 @@ var MyServer = {
 
         if (pathname == "/") {
             response.end("Welcome :)"); //send a response
-        }else if(pathname == "/login"){
-            //get username and password
-            //process
-                //checked if user is already in world 
-                //hash password, check db (get pswr form db and compare)
-            //return answer (connect: 200 or wrong credentials: 403)
-        }else if(pathname == "/signup"){
-            //get username and password
-            // check not exist -- return(error)
-            //hash pasword
-            //add user to db
-            //return success 200
         }
-
     },
 
     sendHTTPResponse: function (response, status_code, data) {
