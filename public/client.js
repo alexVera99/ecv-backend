@@ -7,7 +7,7 @@ var my_client = {
         my_client.url = url;
         my_client.room = room;
         
-        my_client.socket = new WebSocket("wss://" + url + "?room=" + room);
+        my_client.socket = new WebSocket("ws://" + url + "?room=" + room);
 
         my_client.socket.onmessage = my_client.onMessage;
     },

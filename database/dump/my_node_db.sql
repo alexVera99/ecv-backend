@@ -75,23 +75,23 @@ CREATE TABLE `MOONSCAPE_users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 INSERT INTO `MOONSCAPE_animations` (`id`, `image_uri`, `show_uri`, `scale`, `facing_right`, `facing_left`, `facing_front`, `facing_back`, `walking_frames`, `idle_frames`, `talking_frames`) VALUES
-(1, 'imgs/char1.png', 'imgs/avatar1.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(2, 'imgs/char2.png', 'imgs/avatar2.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(3, 'imgs/char3.png', 'imgs/avatar3.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(4, 'imgs/char4.png', 'imgs/avatar4.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(5, 'imgs/char5.png', 'imgs/avatar5.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(6, 'imgs/char6.png', 'imgs/avatar6.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(7, 'imgs/char7.png', 'imgs/avatar7.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(8, 'imgs/char8.png', 'imgs/avatar8.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(9, 'imgs/char9.png', 'imgs/avatar9.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]');
+(1, '../imgs/char1.png', '../imgs/avatar1.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(2, '../imgs/char2.png', '../imgs/avatar2.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(3, '../imgs/char3.png', '../imgs/avatar3.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(4, '../imgs/char4.png', '../imgs/avatar4.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(5, '../imgs/char5.png', '../imgs/avatar5.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(6, '../imgs/char6.png', '../imgs/avatar6.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(7, '../imgs/char7.png', '../imgs/avatar7.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(8, '../imgs/char8.png', '../imgs/avatar8.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
+(9, '../imgs/char9.png', '../imgs/avatar9.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]');
 
 INSERT INTO `MOONSCAPE_exits` (`id`, `position`, `height`, `width`, `to_room_id`, `room_id`) VALUES
 (1, '[364, 125]', 41, 24, 2, 1),
 (2, '[518, 164]', 35, 20, 1, 2);
 
 INSERT INTO `MOONSCAPE_rooms` (`id`, `name`, `scale`, `image_uri`, `offset`, `range`) VALUES
-(1, 'street1', 2.5, 'imgs/bg1.png', 0, '[-200,200]'),
-(2, 'street2', 2.05, 'imgs/city.png', 0, '[-300,300]');
+(1, 'street1', 2.5, '../imgs/bg1.png', 0, '[-200,200]'),
+(2, 'street2', 2.05, '../imgs/city.png', 0, '[-300,300]');
 
 INSERT INTO `MOONSCAPE_users` (`id`, `username`, `room_id`, `animation_id`, `position`) VALUES
 (1, 'Alex', 1, 1, 0),
