@@ -2,7 +2,7 @@
   "name": "ecv_backend",
   "version": "1.0.0",
   "description": "Backend for Virtual Communications subject project",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,10 +11,13 @@
   "author": "Alexander Vera",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.20",
+    "uuid": "^9.0.0",
     "websocket": "^1.0.34"
   }
 }

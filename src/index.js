@@ -9,12 +9,18 @@ import { AnimationOperator } from './use_cases/animationOperator.js';
 import { UserRepository } from './repository/MySQL/userRepository.js';
 import { RoomRepository } from './repository/MySQL/roomRepository.js';
 import { AnimationRepository } from './repository/MySQL/animationRepository.js';
+import { TokenRepository } from './repository/MySQL/tokenRepository.js';
 import { WSClientOperator } from './use_cases/wsClientOperator.js';
+import { Authorizer } from './use_cases/auth.js';
+import { MySQLConnector } from './repository/MySQL/connect.js';
 import { config } from 'dotenv';
+import bodyParser from "body-parser";
+import cors from "cors";
 
 config();
 
 var server_port = process.env.NODE_SERVER_PORT || 8081;
+const client_url = process.env.CLIENT_URL;
 var isDebugMode =  (process.env.APP_DEBUG === "true");
 
 // Expose "public" folder
@@ -28,40 +34,157 @@ server.listen(server_port, function() {
 	console.log("Server ready!" );
 });
 
+const corsOptions = {
+    origin: client_url,
+    allowedHeaders: ['Content-Type']
+};
 
-// TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
-import { MySQLConnector } from './repository/MySQL/connect.js';
-import { User } from './entities/dataContainers.js';
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+app.use( bodyParser.json() ); // to support JSON-encoded bodies
+app.use( bodyParser.urlencoded({extended: true}) ); //unicode
+
+app.all('/signup', function (req, res) {
+    let payload = req.body;
+
+    let username = payload["username"];
+    let password = String(payload["password"]);
+    let animation_id = payload["animation_id"];
+
+    let is_username_not_defined = !username;
+    let is_password_not_defined = !password;
+    let is_animation_id_not_defined = !animation_id;
+
+    if (is_username_not_defined || is_password_not_defined || is_animation_id_not_defined) {
+        let status_code = 400;
+        let message = "Error creating user";
+        let payload = {
+            message: message
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+    
+    let authorizer = new Authorizer(userRepository, tokenRepository);
+
+    let onsignup = (err) => {
+        let message;
+        let status_code;
+
+        if(err) {
+            message = "Error creating user";
+            status_code = 400;
+        }
+        else{
+            message = "User created successfully";
+            status_code = 201;
+        }
+        let payload = {
+            message: message
+        };
+
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.signup(username, password, animation_id, onsignup);
+});
+
+app.all('/login', function (req, res) {
+    let payload = req.body;
+
+    let username = payload["username"];
+    let password = String(payload["password"]);
+
+    let is_username_not_defined = !username;
+    let is_password_not_defined = !password;
+
+    if (is_username_not_defined || is_password_not_defined) {
+        let status_code = 400;
+        let message = "Missing username or password";
+        let payload = {
+            message: message
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+
+    let authorizer = new Authorizer(userRepository, tokenRepository);
+
+    let onlogin = (err, user, token) => {
+        let status_code;
+        let payload;
+
+        if(err) {
+            console.log(err);
+
+            let message = "Username or password is wrong.";
+            status_code = 401;
+
+            payload = {
+                message: message
+            };
+        }
+        else{
+            let message = "Successfully log in.";
+            status_code = 200;
+            payload = {
+                message: message,
+                user: user,
+                token: token
+            };
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.login(username, password, onlogin);
+});
+
+app.all('/logout', function (req, res) {
+    let payload = req.body;
+
+    let token = payload["token"];
+
+    let is_not_token = !token;
+
+    if (is_not_token) {
+        let status_code = 404;
+        let payload = {
+            message: "Missing token"
+        }
+
+        res.status(status_code).send(JSON.stringify(payload));
+        return;
+    }
+
+    let authorizer = new Authorizer(userRepository, tokenRepository);
+
+    let onlogout = (is_token_deleted) => {
+        let message;
+        let status_code;
+
+        if(!is_token_deleted) {
+            message = "Couldn't logout.";
+            status_code = 400;
+        }
+        else {
+            message = "Successfully logout.";
+            status_code = 200;
+        }
+
+        let payload = {
+            message: message,
+        };
+        res.status(status_code).send(JSON.stringify(payload));
+    }
+
+    authorizer.logout(token, onlogout);
+});
+
 
 var connector = new MySQLConnector();
-
-/* var res = await connector.selectAll("users");
-console.log(res); *//*
-
-let table = "users";
-let id = 1;
-
-let query = "SELECT * FROM " + table + " AS us, animations AS anim" + 
-" WHERE us.id = ? AND us.animation_id = anim.id";
-let params = [id];
-
-var res = await connector.executeQueryWithParams(query, params);
-
-console.log(res);
-
-var user_data = res[0];
-
-var user = new User();
-user.user_id = user_data["id"];
-user.username = user_data["username"];
-user.room_id = user_data["room_id"];
-user.position = user_data["position"];
-
-console.log(user);
-// END TRYINNNG DATABASE!!!!!!!!!!!!!!!!!!!
-
-//var connector = new MySQLConnector();
-*/
 
 var world = new World();
 
@@ -69,6 +192,7 @@ var world = new World();
 var userRepository = new UserRepository(connector);
 var animationRepository = new AnimationRepository(connector);
 var roomRepository = new RoomRepository(connector);
+let tokenRepository = new TokenRepository(connector);
 
 // Data operators
 var userOperator = new UserOperator(world, userRepository);
@@ -139,20 +263,7 @@ var MyServer = {
 
         if (pathname == "/") {
             response.end("Welcome :)"); //send a response
-        }else if(pathname == "/login"){
-            //get username and password
-            //process
-                //checked if user is already in world 
-                //hash password, check db (get pswr form db and compare)
-            //return answer (connect: 200 or wrong credentials: 403)
-        }else if(pathname == "/signup"){
-            //get username and password
-            // check not exist -- return(error)
-            //hash pasword
-            //add user to db
-            //return success 200
         }
-
     },
 
     sendHTTPResponse: function (response, status_code, data) {

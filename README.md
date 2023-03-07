@@ -18,7 +18,9 @@ Now, you can start the backend server by executing:
 
 ``node src/index.js``
 
-If you want a MySQL database and a server with NodeJS installed, you may use Docker Compose:
+If you want a MySQL database and a server with NodeJS installed, you may use Docker Compose. But before, delete the `node_modules` folder since docker compose will
+install it for you. The reason of this is `bcrypt`. To use it, it should be installed
+in the docker virtual machine instead of the host machine (aka. your computer).
 
 ``docker compose up -d``
 

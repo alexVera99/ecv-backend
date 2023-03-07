@@ -12,11 +12,12 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - CLIENT_URL=${CLIENT_URL}
     volumes:
       - .:/home/node/app
     ports:
       - ${NODE_FORWARD_PORT}:${NODE_SERVER_PORT}
-    command: "npm start"
+    command: bash -c "npm install && ./node_modules/nodemon/bin/nodemon.js start"
     depends_on:
       - db
     networks:

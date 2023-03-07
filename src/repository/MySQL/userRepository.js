@@ -10,7 +10,7 @@ export class UserRepository extends IUserRepository {
     }
 
     async getUserById(id) {
-        let query = "SELECT * FROM " + this.table + " AS us, animations AS anim" + 
+        let query = "SELECT * FROM " + this.table + " AS us, " + this.anim_table + " AS anim" + 
                     " WHERE us.id = ? AND us.animation_id = anim.id";
         let params = [id];
 
@@ -25,7 +25,7 @@ export class UserRepository extends IUserRepository {
 
     async getUsers() {
         let query = "SELECT * FROM " + this.table + 
-                    " AS us, animations AS anim WHERE us.animation_id = anim.id";
+                    " AS us, " + this.anim_table + " AS anim WHERE us.animation_id = anim.id";
 
         let res = await this.connector.executeQuery(query);
 
@@ -44,14 +44,30 @@ export class UserRepository extends IUserRepository {
         return users;
     }
 
-    createUser(user) {
-        var username = user.username;
-        var room_id = user.room_id;
-        var animation_id = user.animation.avatar_id;
+    async getUserWithPassword(username) {
+        let query = "SELECT * FROM " + this.table + 
+                    " AS us, " + this.anim_table + 
+                    " AS anim WHERE username = ? AND us.animation_id = anim.id";
+        let params = [username];
+
+        let res = await this.connector.executeQueryWithParams(query, params);
+
+        let user_data = res[0];
+
+        let user = this.parseUser(user_data);
+        let password = user_data["password"];
+
+        return {
+            user: user,
+            password: password
+        };
+    }
+
+    createUser(username, password, animation_id) {
         var position = 0;
-        var values = [username, room_id, animation_id, position];
-        var sql = "INSERT INTO " + this.table + " (username, room_id, animation_id, position) VALUES (?, ?, ?, ?)";
-        this.connector.query(sql, values);
+        var values = [username, password, animation_id, position];
+        var sql = "INSERT INTO " + this.table + " (username, password, animation_id, position) VALUES (?, ?, ?, ?)";
+        this.connector.executeQueryWithParams(sql, values);
     }
 
     deleteUser(id) {
