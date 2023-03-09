@@ -54,27 +54,14 @@ export class Room {
         this.room_name = room_name || "";
         this.users = new Map();
         this.scale = null;
-        this.image_uri = null;
-        this.offset = null;
-        this.range = null;
-        this.exits = null;
+        this.gltf_uri = null;
     }
 
     fromJSON(data) {
         this.room_id = data["room_id"];
         this.room_name = data["room_name"];
-        this.users = data["users"];
+        this.users = new Map(Object.entries(data["users"]));
         this.scale = data["scale"]
-        this.image_uri = data["image_uri"];
-        this.offset= data["offset"];
-        this.range = data["range"];
-        this.exits = data["exits"].map((exit) => {
-            return {
-                position: exit.position,
-                height: exit.height,
-                width: exit.width,
-                to_room_id:exit.to_room_id
-            };
-        })
+        this.gltf_uri = data["gltf_uri"];
     }
 }

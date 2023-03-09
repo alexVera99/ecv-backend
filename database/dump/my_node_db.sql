@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-02-25 20:16:49.5670
+-- Generation Time: 2023-03-09 21:14:33.0050
 -- -------------------------------------------------------------
 
 
@@ -34,31 +34,14 @@ CREATE TABLE `MOONSCAPE_3D_animations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `MOONSCAPE_3D_exits`;
-CREATE TABLE `MOONSCAPE_3D_exits` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `position` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `height` float NOT NULL,
-  `width` float NOT NULL,
-  `to_room_id` int(11) DEFAULT NULL,
-  `room_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `room_id` (`room_id`),
-  KEY `to_room_id` (`to_room_id`),
-  CONSTRAINT `exits_ibfk_4` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `exits_ibfk_5` FOREIGN KEY (`to_room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
-
 DROP TABLE IF EXISTS `MOONSCAPE_3D_rooms`;
 CREATE TABLE `MOONSCAPE_3D_rooms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `scale` float NOT NULL DEFAULT '1',
-  `image_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `offset` int(8) DEFAULT NULL,
-  `range` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gltf_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_tokens`;
 CREATE TABLE `MOONSCAPE_3D_tokens` (
@@ -96,13 +79,8 @@ INSERT INTO `MOONSCAPE_3D_animations` (`id`, `image_uri`, `show_uri`, `scale`, `
 (8, '../imgs/char8.png', '../imgs/avatar8.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
 (9, '../imgs/char9.png', '../imgs/avatar9.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]');
 
-INSERT INTO `MOONSCAPE_3D_exits` (`id`, `position`, `height`, `width`, `to_room_id`, `room_id`) VALUES
-(1, '[364, 125]', 41, 24, 2, 1),
-(2, '[518, 164]', 35, 20, 1, 2);
-
-INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `image_uri`, `offset`, `range`) VALUES
-(1, 'street1', 2.5, '../imgs/bg1.png', 0, '[-200,200]'),
-(2, 'street2', 2.05, '../imgs/city.png', 0, '[-300,300]');
+INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `gltf_uri`) VALUES
+(1, 'room 1', 40, 'data/room.gltf');
 
 INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `animation_id`, `position`, `password`) VALUES
 (1, 'Alex', NULL, 1, 0, '$2b$10$PrOlAnEIyOH85WG3YKOX3.Qgxn.k.NCWnAvVwJD7ZLcvFlMq79ZaW'),
