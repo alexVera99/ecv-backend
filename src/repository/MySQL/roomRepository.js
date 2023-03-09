@@ -4,7 +4,7 @@ import { IRoomRepository } from "../../use_cases/interfaces/iRoomRepository.js";
 export class RoomRepository extends IRoomRepository {
     constructor(connector) {
         super();
-        this.table = "MOONSCAPE_rooms";
+        this.table = "MOONSCAPE_3D_rooms";
         this.connector = connector;
         this.room1Data = {
             room_id: 1,
@@ -66,7 +66,7 @@ export class RoomRepository extends IRoomRepository {
         var res = await this.connector.executeQuery(query)
         for(var i = 0; i<res.length; i++)
         {
-            let queryExits = "SELECT * FROM MOONSCAPE_exits WHERE room_id = " + res[i]["id"]+ ";";
+            let queryExits = "SELECT * FROM MOONSCAPE_3D_exits WHERE room_id = " + res[i]["id"]+ ";";
             var params = [res[i]["id"]];
             var resExits = await this.connector.executeQuery(queryExits, params);
             var room = that.parseRoom(res[i], resExits);

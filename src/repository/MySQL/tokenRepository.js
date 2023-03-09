@@ -3,7 +3,7 @@ import { ITokenRepository } from "../../use_cases/interfaces/iTokenRepository.js
 export class TokenRepository extends ITokenRepository {
     constructor(connector) {
         super();
-        this.table = "MOONSCAPE_tokens";
+        this.table = "MOONSCAPE_3D_tokens";
         this.connector = connector;
     }
     async getToken(user_id) {
