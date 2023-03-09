@@ -94,6 +94,10 @@ var my_client = {
             my_client.on_ready(data);
         }
 
+        else if (type == "init_data" && my_client.on_init_data) {
+            my_client.on_init_data(data);
+        }
+
         else if (type == "msg" && my_client.on_message) {
             var author = data["author_id"];
             var msg = data["msg"];

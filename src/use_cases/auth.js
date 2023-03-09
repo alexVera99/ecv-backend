@@ -82,4 +82,13 @@ export class Authorizer {
             callback(undefined);
         })
     }
+
+    async getUserIdFromToken(token){
+        const user_id = await this.tokenRepository.getUserId(token);
+        let noUserId = !user_id;
+        if(noUserId) {
+            return undefined;
+        }
+        return user_id;
+    }
 }

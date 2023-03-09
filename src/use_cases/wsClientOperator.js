@@ -11,21 +11,9 @@ export class WSClientOperator {
         this.animation_operator = animation_operator;
     }
 
-    updateIndex() {
-        this.last_index = this.last_index + 1;
-    }
 
-    addClient(connection) {
-        var user_id = this.last_index;
+    addClient(connection, user_id) {
         this.client_manager.addClient(connection, user_id);
-
-        this.updateIndex();
-
-        // TEMPORAL: WE NEED TO MAKE A SYSTEM TO MAP USER TOKENS WITH USERS ID
-        connection.user_id = user_id;
-        // END TEMPORAL
-
-        return user_id;
     }
 
     getAllClients() {
@@ -46,17 +34,25 @@ export class WSClientOperator {
         connection.sendUTF(message);
     }
 
-    sendUserInitData(user_id) {
+    sendConnectionSuccess(connection) {
+        let payload = {
+            "type": "connection",
+        }
+        connection.sendUTF(JSON.stringify(payload));
+    }
+
+    async sendUserInitData(user_id) {
         var roomsMap = this.room_operator.getAllRoomsAvailable();
         var animationsMap = this.animation_operator.getAllAnimations();
         const animations = mapToObj(animationsMap);
         const room_data = mapToObj(roomsMap);
-
+        const user_data = await this.user_operator.getUserOffline(user_id);
 
         var info = {
-            type: "connection",
+            type: "init_data",
             data: {
                 user_id: user_id,
+                user: user_data,
                 rooms_data: room_data,
                 animations_data: animations
             }
