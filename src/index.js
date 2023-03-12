@@ -67,8 +67,6 @@ app.all('/signup', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
         return;
     }
-    
-    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
     let onsignup = (err) => {
         let message;
@@ -111,8 +109,6 @@ app.all('/login', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
         return;
     }
-
-    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
     let onlogin = (err, user, token) => {
         let status_code;
@@ -161,8 +157,6 @@ app.all('/logout', function (req, res) {
         return;
     }
 
-    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
-
     let onlogout = (is_token_deleted) => {
         let message;
         let status_code;
@@ -207,6 +201,9 @@ var animationOperator = new AnimationOperator(world, animationRepository);
 
 var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animationOperator);
 
+// Auth
+var authorizer = new Authorizer(userRepository, tokenRepository);
+
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
 animationOperator.loadAnimationsInWorld();
@@ -242,9 +239,7 @@ var MyServer = {
     wsConnectionHandler: function(request) {
         var connection = request.accept(null, request.origin);
 
-        let user_id = wsClientOperator.addClient(connection);
-        
-        wsClientOperator.sendUserInitData(user_id,world);
+        wsClientOperator.sendConnectionSuccess(connection);
 
         connection.on('message', MyServer.onMessage);
     
@@ -292,7 +287,7 @@ var MyServer = {
     },
 
     // Websocket functions
-    onMessage: function(message) {
+    onMessage: async function(message) {
        
         if (message.type !== 'utf8') {
             return;
@@ -301,6 +296,16 @@ var MyServer = {
 
         // Since it is a callback, this referes to the connection
         var connection = this;
+
+        // Checking token
+        let token = msg["token"];
+        let user_id = await authorizer.getUserIdFromToken(token);
+        let isNotAuthorized = !user_id;
+        if(isNotAuthorized) {
+            connection.close(1008, "Unauthorized");
+            return;
+        }
+        console.log("User with user_id " + user_id  + " is authorized!!");
 
         // Create payload
         var payload = {
@@ -311,7 +316,12 @@ var MyServer = {
             }
         };
 
-        if(msg.private){
+        if(msg["type"] == "user_request_init_data") {            
+            wsClientOperator.addClient(connection, user_id);
+            wsClientOperator.sendUserInitData(user_id, world);
+        }
+
+        else if(msg.private){
             var target_ids = msg.target_ids;
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
@@ -321,7 +331,6 @@ var MyServer = {
 
         else if(msg["type"] == "user_connect_room") {
             var user_data = msg["user_data"];
-            var user_id = user_data.user_id;
             var room_id = user_data["room_id"];
             connection.room_id = room_id;
 
@@ -334,7 +343,6 @@ var MyServer = {
         }
 
         else if(msg["type"] == "user_update_position") {
-            var user_id = msg["user_id"];
             var target_position = msg["target_position"];
 
             // Update user position in our registry
@@ -344,7 +352,6 @@ var MyServer = {
         }
 
         else if(msg["type"] == "user_change_room") {
-            let user_id = msg["user"].user_id;
             let room_id = msg["room_id"];
 
             userOperator.changeUserRoom(user_id, room_id);
@@ -354,7 +361,6 @@ var MyServer = {
         }
 
         else if(msg["type"] == "user_change_room") {
-            let user_id = msg["user"].user_id;
             let room_id = msg["room_id"];
 
             userOperator.changeUserRoom(user_id, room_id);
@@ -364,7 +370,6 @@ var MyServer = {
         }
 
         else if(msg["type"] == "msg") {
-            var user_id = connection.user_id;
             wsClientOperator.broadcastPayload(user_id, payload);
         }
     },

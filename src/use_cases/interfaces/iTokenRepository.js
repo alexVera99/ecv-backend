@@ -9,5 +9,8 @@ export class ITokenRepository {
         if(!this.deleteToken) {
             throw new Error("deleteToken(token) not defined!");
         }
+        if(!this.getUserId) {
+            throw new Error("getUserId(token) not defined!");
+        }
     }
 }

@@ -57,4 +57,21 @@ export class TokenRepository extends ITokenRepository {
             });
         })
     }
+    async getUserId(token) {
+        let query = "SELECT user_id FROM " + this.table + " WHERE token = ?";
+        let params = [token];
+
+        return new Promise((resolve) => {
+            this.connector.executeQueryWithParams(query, params)
+            .then(res => {
+                let user_id = res[0]["user_id"];
+                resolve(user_id);
+            })
+            .catch(err => {
+                console.log("The " + token + " doesn't have any user_id associated. Error: " + err);
+    
+                resolve(undefined);
+            });
+        });
+    }
 }
