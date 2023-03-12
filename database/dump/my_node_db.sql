@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-03-09 21:14:33.0050
+-- Generation Time: 2023-03-10 01:47:30.7130
 -- -------------------------------------------------------------
 
 
@@ -21,18 +21,24 @@
 DROP TABLE IF EXISTS `MOONSCAPE_3D_animations`;
 CREATE TABLE `MOONSCAPE_3D_animations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `image_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `show_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `scale` int(8) NOT NULL DEFAULT '1',
-  `facing_right` int(8) DEFAULT NULL,
-  `facing_left` int(8) DEFAULT NULL,
-  `facing_front` int(8) DEFAULT NULL,
-  `facing_back` int(8) DEFAULT NULL,
-  `walking_frames` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `idle_frames` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `talking_frames` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+  `name` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `scene_node_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `scene_node_id` (`scene_node_id`),
+  CONSTRAINT `MOONSCAPE_3D_animations_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `MOONSCAPE_3D_materials`;
+CREATE TABLE `MOONSCAPE_3D_materials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color_texture_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `scene_node_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `scene_node_id` (`scene_node_id`),
+  CONSTRAINT `MOONSCAPE_3D_materials_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_rooms`;
 CREATE TABLE `MOONSCAPE_3D_rooms` (
@@ -40,6 +46,15 @@ CREATE TABLE `MOONSCAPE_3D_rooms` (
   `name` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `scale` float NOT NULL DEFAULT '1',
   `gltf_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `MOONSCAPE_3D_scene_nodes`;
+CREATE TABLE `MOONSCAPE_3D_scene_nodes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mesh_uri` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `scale` float DEFAULT NULL,
+  `position` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0]',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
@@ -58,33 +73,32 @@ CREATE TABLE `MOONSCAPE_3D_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `room_id` int(11) DEFAULT NULL,
-  `animation_id` int(11) NOT NULL,
-  `position` float NOT NULL DEFAULT '0',
+  `scene_node_id` int(11) NOT NULL,
   `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
-  KEY `animation_id` (`animation_id`),
-  CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`),
-  CONSTRAINT `users_ibfk_7` FOREIGN KEY (`animation_id`) REFERENCES `MOONSCAPE_3D_animations` (`id`)
+  KEY `scene_node_id` (`scene_node_id`),
+  CONSTRAINT `MOONSCAPE_3D_users_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`),
+  CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-INSERT INTO `MOONSCAPE_3D_animations` (`id`, `image_uri`, `show_uri`, `scale`, `facing_right`, `facing_left`, `facing_front`, `facing_back`, `walking_frames`, `idle_frames`, `talking_frames`) VALUES
-(1, '../imgs/char1.png', '../imgs/avatar1.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(2, '../imgs/char2.png', '../imgs/avatar2.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(3, '../imgs/char3.png', '../imgs/avatar3.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(4, '../imgs/char4.png', '../imgs/avatar4.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(5, '../imgs/char5.png', '../imgs/avatar5.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(6, '../imgs/char6.png', '../imgs/avatar6.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(7, '../imgs/char7.png', '../imgs/avatar7.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(8, '../imgs/char8.png', '../imgs/avatar8.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]'),
-(9, '../imgs/char9.png', '../imgs/avatar9.png', 0, 0, 2, 1, 3, '[2,3,4,5,6,7,8,9]', '[0]', '[0,1]');
+INSERT INTO `MOONSCAPE_3D_animations` (`id`, `name`, `uri`, `scene_node_id`) VALUES
+(1, 'idle', 'data/girl/idle.skanim', 1),
+(2, 'walking', 'data/girl/walking.skanim', 1),
+(3, 'dance', 'data/girl/dance.skanim', 1);
+
+INSERT INTO `MOONSCAPE_3D_materials` (`id`, `name`, `color_texture_uri`, `scene_node_id`) VALUES
+(1, 'girl', 'girl/girl.png', 1);
 
 INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `gltf_uri`) VALUES
 (1, 'room 1', 40, 'data/room.gltf');
 
-INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `animation_id`, `position`, `password`) VALUES
-(1, 'Alex', NULL, 1, 0, '$2b$10$PrOlAnEIyOH85WG3YKOX3.Qgxn.k.NCWnAvVwJD7ZLcvFlMq79ZaW'),
-(2, 'Anna', NULL, 1, 0, '$2b$10$Wv5Si5Pnvnt5ZKs6BBKfp.Sou2Eg3HZ.QvuepzJb0/Z7xd.TwOPHO');
+INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`, `position`) VALUES
+(1, 'girl/girl.wbin', 0.3, '[-40, 0, 0]');
+
+INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`) VALUES
+(1, 'Alex', 1, 1, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O'),
+(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i');
 
 
 

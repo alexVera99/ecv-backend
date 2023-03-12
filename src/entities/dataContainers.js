@@ -24,27 +24,85 @@ export class Animation {
     }
 }
 
+export class Material {
+    id;
+    name;
+    color_texture;
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    fromJSON(data) {
+        this.id = data["id"];
+        this.name = data["name"];
+        this.color_texture = data["color_texture"];
+    }
+}
+
+export class Animation3D {
+    id;
+    name;
+    uri;
+
+    fromJSON(data) {
+        this.id = data["id"];
+        this.name = data["name"];
+        this.uri = data["uri"];
+    }
+}
+
+export class SceneNode {
+    id;
+    mesh_uri;
+    material;
+    scale;
+    animations;
+    position;
+
+    constructor() {
+        this.animations = new Map();
+    }
+
+    fromJSON(data) {
+        this.id = data["id"];
+        this.mesh_uri = data["mesh_uri"];
+        this.material = new Material();
+        this.material.fromJSON(data["material"]);
+        
+        this.scale = data["scale"];
+        data["animations"].forEach(anim_data => {
+            let anim = new Animation3D();
+            anim.fromJSON(anim_data);
+            
+            this.animations.set(anim.id, anim);
+        })
+        this.position = data["position"];
+    }
+
+    addAnimation(id, anim){
+        const isAnim3DInstance = anim instanceof Animation3D;
+        if(!isAnim3DInstance) {
+            throw Error("anim should be an instance of Animation3D")
+        }
+        this.animations.set(id, anim);
+    } 
+}
+
 export class User {
     constructor(username) {
         this.user_id = null;
         this.username = username || "";
         this.room_id = null;
-        this.avatar = null;
-        this.facing = null;
-        this.animation = "idle_frames";
-        this.position = null;
-        this.target_position = null;
+        this.scene_node = null;
     }
 
     fromJSON(data) {
         this.user_id = data["user_id"];
         this.username = data["username"];
         this.room_id = data["room_id"];
-        this.avatar = data["avatar"];
-        this.facing = data["avatar"]["facing_front"];
-        this.animation = data["animation"];
-        this.position = data["position"];
-        this.target_position = data["target_position"];
+        this.scene_node = new SceneNode();
+        this.scene_node.fromJSON(data["scene_node"]);
     }
 }
 

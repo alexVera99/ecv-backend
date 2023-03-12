@@ -48,7 +48,7 @@ export class TokenRepository extends ITokenRepository {
                         " could not be deleted. Database error : " 
                         + err;
                 
-                let success = true;
+                let success = false;
                 let result = {
                     message: m,
                     success: success

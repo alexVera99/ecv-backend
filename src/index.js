@@ -16,6 +16,8 @@ import { MySQLConnector } from './repository/MySQL/connect.js';
 import { config } from 'dotenv';
 import bodyParser from "body-parser";
 import cors from "cors";
+import { SceneNodeRepository } from './repository/MySQL/sceneNodeRepository.js';
+import { MaterialRepository } from './repository/MySQL/materialRepository.js';
 
 config();
 
@@ -49,11 +51,11 @@ app.all('/signup', function (req, res) {
 
     let username = payload["username"];
     let password = String(payload["password"]);
-    let animation_id = payload["animation_id"];
+    let scene_node_id = payload["scene_node_id"];
 
     let is_username_not_defined = !username;
     let is_password_not_defined = !password;
-    let is_animation_id_not_defined = !animation_id;
+    let is_animation_id_not_defined = !scene_node_id;
 
     if (is_username_not_defined || is_password_not_defined || is_animation_id_not_defined) {
         let status_code = 400;
@@ -66,7 +68,7 @@ app.all('/signup', function (req, res) {
         return;
     }
     
-    let authorizer = new Authorizer(userRepository, tokenRepository);
+    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
     let onsignup = (err) => {
         let message;
@@ -87,7 +89,7 @@ app.all('/signup', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
     }
 
-    authorizer.signup(username, password, animation_id, onsignup);
+    authorizer.signup(username, password, scene_node_id, onsignup);
 });
 
 app.all('/login', function (req, res) {
@@ -110,7 +112,7 @@ app.all('/login', function (req, res) {
         return;
     }
 
-    let authorizer = new Authorizer(userRepository, tokenRepository);
+    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
     let onlogin = (err, user, token) => {
         let status_code;
@@ -159,7 +161,7 @@ app.all('/logout', function (req, res) {
         return;
     }
 
-    let authorizer = new Authorizer(userRepository, tokenRepository);
+    let authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
     let onlogout = (is_token_deleted) => {
         let message;
@@ -193,9 +195,13 @@ var userRepository = new UserRepository(connector);
 var animationRepository = new AnimationRepository(connector);
 var roomRepository = new RoomRepository(connector);
 let tokenRepository = new TokenRepository(connector);
+const sceneNodeRepository = new SceneNodeRepository(connector);
+const materialRepository = new MaterialRepository(connector);
 
 // Data operators
-var userOperator = new UserOperator(world, userRepository);
+var userOperator = new UserOperator(world, userRepository,
+                                    sceneNodeRepository, materialRepository,
+                                    animationRepository);
 var roomOperator = new RoomOperator(world, roomRepository);
 var animationOperator = new AnimationOperator(world, animationRepository);
 
