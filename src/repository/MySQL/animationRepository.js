@@ -1,90 +1,73 @@
-import { Animation } from "../../entities/dataContainers.js";
+import { Animation, Animation3D } from "../../entities/dataContainers.js";
 import { IAnimationRepository } from "../../use_cases/interfaces/iAnimationRepository.js";
+import { AnimationAdapter } from "./data_adapters/animationAdapter.js";
 
 export class AnimationRepository extends IAnimationRepository {
     constructor(connector){
         super();
-        this.table = "MOONSCAPE_animations";
+        this.table = "MOONSCAPE_3D_animations";
         this.connector = connector;
-
-        this.animationData = {
-            avatar_id: 1,
-            image_uri: "../imgs/char1.png",
-            show_uri: "../imgs/avatar1.png",
-            scale: 0,
-            walking_frames: [2,3,4,5,6,7,8,9],
-            idle_frames: [0],
-            talking_frames: [0,1],
-            facing_right: 0,
-            facing_left: 2,
-            facing_front: 1,
-            facing_back: 3
-            
-        };
-        this.animation2Data = {
-            avatar_id: 2,
-            image_uri: "../imgs/char2.png",
-            show_uri: "../imgs/avatar2.png",
-            scale: 0,
-            walking_frames: [2,3,4,5,6,7,8,9],
-            idle_frames: [0],
-            talking_frames: [0,1],
-            facing_right: 0,
-            facing_left: 2,
-            facing_front: 1,
-            facing_back: 3
-            
-        };
     }
     async getAnimationById(id) {
         let query = "SELECT * FROM " + this.table + " AS anim WHERE anim.id = ?";
         let params = [id];
-        let animation = null;
         var res = await this.connector.executeQueryWithParams(query, params);
                        
         let anim_data = res[0];
-        animation = this.parseAnimation(anim_data);
-                        
+        const animation_parsed = this.parseAnimation(anim_data);
 
-        return animation;
-        //console.log("Get animation with id " + id);
-        //return this.animationData;
+        return animation_parsed;
+    }
 
+    async getAllBySceneNodeId(scene_node_id) {
+        const query = "SELECT * FROM " + this.table +
+            " WHERE scene_node_id = ?";
+        const params = [scene_node_id];
+
+        const res = await this.connector.executeQueryWithParams(query, params);
+
+
+        const animationAdapters = res.map(r => {
+            return AnimationAdapter.parse(r);
+        });
+
+        return animationAdapters;
     }
 
     async getAnimations() {
         let query = "SELECT * FROM " + this.table;
         var that = this;
-        let animations = []
+        let animations_parsed = []
         var res = await this.connector.executeQuery(query)
         for(var i = 0; i<res.length; i++)
         {
-            var anim = that.parseAnimation(res[i]);
-            animations.push(anim);
+            var anim_parsed = that.parseAnimation(res[i]);
+            animations_parsed.push(anim_parsed);
         }
         
-        return animations;
+        return animations_parsed;
       
     }
 
 
-    createAnimation(animation) {
-        
-        var image_uri = animation.image_uri;
-        var show_uri = animation.show_uri;
-        var scale = animation.scale;
-        var facing_back = animation.facing_back;
-        var facing_front = animation.facing_front;
-        var facing_left = animation.facing_left;
-        var facing_right = animation.facing_right;
-        var walking_frames = JSON.stringify(animation.walking_frames);
-        var talking_frames = JSON.stringify(animation.talking_frames);
-        var idle_frames = JSON.stringify(animation.idle_frames);
+    createAnimation(animation, scene_node_id) {
+        const name = animation.name;
+        const uri = animation.uri;
 
-        var params = [image_uri, show_uri, scale, facing_right,facing_left, facing_front, facing_back, walking_frames, idle_frames, talking_frames];
-        var sql = "INSERT INTO " + this.table + " (image_uri, show_uri, scale, facing_right, facing_left, facing_front, facing_back, walking_frames, idle_frames, talking_frames) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        this.connector.executeQueryWithParams(sql, params);
-        //console.log("Animation with id " + id + " has been created");
+        var params = [name, uri, scene_node_id];
+        var sql = "INSERT INTO " + this.table + " (name, uri, scene_node_id) VALUES (?, ?, ?)";
+        return new Promise(resolve => {
+            this.connector.executeQueryWithParams(sql, params)
+            .then(res => {
+                const isAnimCreated = res["affectedRows"] == 1;
+                resolve(isAnimCreated);
+            })
+            .catch(err => {
+                console.log(err);
+                const isAnimCreated = false;
+                resolve(isAnimCreated);
+            });
+        });
     }
 
     deleteAnimation(id) {
@@ -94,25 +77,20 @@ export class AnimationRepository extends IAnimationRepository {
     }
 
     updateAnimation(animation) {
-        var id = animation.avatar_id;
+        // TO DO... IF NEEDED...
     }
 
     parseAnimation(anim_data){
         
-        let animation = new Animation();
-        animation.avatar_id = anim_data["id"];
-        animation.image_uri = anim_data["image_uri"];
-        animation.show_uri = anim_data["show_uri"];
-        animation.scale = anim_data["scale"];
-        animation.walking_frames = JSON.parse(anim_data["walking_frames"]);
-        animation.idle_frames = JSON.parse(anim_data["idle_frames"]);
-        animation.talking_frames = JSON.parse(anim_data["talking_frames"]);
-        animation.facing_right = anim_data["facing_right"];
-        animation.facing_left = anim_data["facing_left"];
-        animation.facing_front = anim_data["facing_front"];
-        animation.facing_back = anim_data["facing_back"];
+        let animation = new Animation3D();
+        animation.id = anim_data["id"];
+        animation.name = anim_data["name"];
+        animation.uri = anim_data["uri"];
+        const scene_node_id = anim_data["scene_node_id"];
 
-        return animation;
-
+        return {
+            animation: animation,
+            scene_node_id: scene_node_id
+        };
     }
 }

@@ -6,6 +6,9 @@ export class IAnimationRepository {
         if(!this.getAnimations) {
             throw new Error("getAnimations() not defined!");
         }
+        if(!this.getAllBySceneNodeId) {
+            throw new Error("getAllBySceneNodeId() not defined!");
+        }
         if(!this.createAnimation) {
             throw new Error("createAnimation() not defined!");
         }

@@ -1,16 +1,36 @@
 import { User } from "../entities/dataContainers.js";
+import { UserParseDB } from "./interfaces/data_adapters/userParserDB.js";
+import { IAnimationRepository } from "./interfaces/iAnimationRepository.js";
+import { IMaterialRepository } from "./interfaces/iMaterialRepository.js";
+import { ISceneNodeRepository } from "./interfaces/iSceneNodeRepository.js";
 import {IUserRepository} from "./interfaces/iUserRepository.js";
 
 
 export class UserOperator{
-    constructor(world, userRepository) {
-        var isIUserRepo = userRepository instanceof IUserRepository;
+    constructor(world, userRepository, sceneRepository,
+                materialRepository, animationRepository) {
+        const isIUserRepo = userRepository instanceof IUserRepository;
+        const isISceneNodeRepo = sceneRepository instanceof ISceneNodeRepository;
+        const isIMaterialRepo = materialRepository instanceof IMaterialRepository;
+        const isIAnimationRepo = animationRepository instanceof IAnimationRepository;
 
         if(!isIUserRepo){
             throw new Error("IUserRepository implementation required");
         }
+        if(!isISceneNodeRepo){
+            throw new Error("ISceneNodeRepository implementation required");
+        }
+        if(!isIMaterialRepo){
+            throw new Error("IMaterialRepository implementation required");
+        }
+        if(!isIAnimationRepo){
+            throw new Error("IAnimationRepository implementation required");
+        }
 
         this.userRepository = userRepository;
+        this.sceneRepository = sceneRepository;
+        this.materialRepository = materialRepository;
+        this.animationRepository = animationRepository;
         this.world = world;
     }
     
@@ -22,6 +42,19 @@ export class UserOperator{
 
     getUser(user_id) {
         let user = this.world.getUser(user_id);
+
+        return user;
+    }
+
+    async getUserFromDB(user_id) {
+        const userAdapter = await this.userRepository.getUserById(user_id);
+        const scene_node_id = userAdapter.scene_node_id;
+
+        const sceneNodeAdapter = await this.sceneRepository.getById(scene_node_id);
+        const materialAdapter = await this.materialRepository.getBySceneNodeId(scene_node_id);
+        const animationAdapter = await this.animationRepository.getAllBySceneNodeId(scene_node_id);
+
+        const user = UserParseDB.parseUserFromDb(userAdapter, sceneNodeAdapter, materialAdapter, animationAdapter);
 
         return user;
     }

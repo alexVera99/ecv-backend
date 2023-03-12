@@ -51,9 +51,44 @@ export class MySQLConnector {
         })
     }
 
-    selectAll(table) {
-        let query = 'SELECT * FROM ' + table;
+    async getById(id, table) {
+        const query = "SELECT * FROM " + table +
+            " WHERE id = ?";
+        const params = [id];
 
-        return this.executeQuery(query);
+        const res = await this.executeQueryWithParams(query, params);
+
+        return res[0];
+    }
+
+    async getAll(table) {
+        const query = "SELECT * FROM " + table;
+
+        const res = await this.executeQuery(query);
+
+        return res;
+    }
+
+    async delete(id, table) {
+        const query = "DELETE FROM " + table + " WHERE id = ?";
+        const params = [id];
+
+        return new Promise((resolve) => {
+            this.executeQueryWithParams(query, params)
+                .then((res) => {
+                    const isItemDeleted = res["affectedRows"] >= 1;
+                    resolve(isItemDeleted);
+                })
+                .catch((err) => {
+                    const m = "Error on deleting item with id " + id +
+                        " from table " + table + ". Database error : "
+                        + err;
+
+                    console.log(m);
+
+                    const isItemDeleted = false;
+                    resolve(isItemDeleted);
+                });
+        })
     }
 }
