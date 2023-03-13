@@ -52,12 +52,15 @@ app.all('/signup', function (req, res) {
     let username = payload["username"];
     let password = String(payload["password"]);
     let scene_node_id = payload["scene_node_id"];
+    const room_id = payload["room_id"];
 
     let is_username_not_defined = !username;
     let is_password_not_defined = !password;
     let is_animation_id_not_defined = !scene_node_id;
+    let is_room_id_not_defined = !room_id;
 
-    if (is_username_not_defined || is_password_not_defined || is_animation_id_not_defined) {
+    if (is_username_not_defined || is_password_not_defined
+        || is_animation_id_not_defined || is_room_id_not_defined) {
         let status_code = 400;
         let message = "Error creating user";
         let payload = {
@@ -87,7 +90,7 @@ app.all('/signup', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
     }
 
-    authorizer.signup(username, password, scene_node_id, onsignup);
+    authorizer.signup(username, password, scene_node_id, room_id, onsignup);
 });
 
 app.all('/login', function (req, res) {
