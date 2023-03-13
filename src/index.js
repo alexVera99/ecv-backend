@@ -209,7 +209,6 @@ var authorizer = new Authorizer(userRepository, tokenRepository);
 
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
-animationOperator.loadAnimationsInWorld();
 
 var MyServer = {
     defaut_room_name: "default_room",
