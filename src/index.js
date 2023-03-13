@@ -362,15 +362,6 @@ var MyServer = {
             wsClientOperator.sendUsersInRoom(user_id);
         }
 
-        else if(msg["type"] == "user_change_room") {
-            let room_id = msg["room_id"];
-
-            userOperator.changeUserRoom(user_id, room_id);
-
-            wsClientOperator.broadcastPayloadToAll(payload);
-            wsClientOperator.sendUsersInRoom(user_id);
-        }
-
         else if(msg["type"] == "msg") {
             wsClientOperator.broadcastPayload(user_id, payload);
         }
