@@ -51,6 +51,9 @@ export class World{
     removeUserFromRoom(user_id, room_id) {
         var room = this.getRoom(room_id);
 
+        const user = this.getUser(user_id);
+        user.room_id = undefined;
+
         room.users.delete(user_id);
     }
 

@@ -4,7 +4,6 @@ import { mapToObj } from '../utils/utils.js';
 
 export class WSClientOperator {
     constructor(user_operator, room_operator, animation_operator) {
-        this.last_index = 1;
         this.client_manager = new WSClientManager();
         this.user_operator = user_operator;
         this.room_operator = room_operator;
@@ -13,7 +12,14 @@ export class WSClientOperator {
 
 
     addClient(connection, user_id) {
+        connection.user_id = user_id;
         this.client_manager.addClient(connection, user_id);
+    }
+
+    getUserIdFromClient(connection) {
+        const user_id = connection.user_id;
+
+        return user_id;
     }
 
     getAllClients() {
@@ -42,11 +48,11 @@ export class WSClientOperator {
     }
 
     async sendUserInitData(user_id) {
-        var roomsMap = this.room_operator.getAllRoomsAvailable();
-        var animationsMap = this.animation_operator.getAllAnimations();
-        const animations = mapToObj(animationsMap);
+        const roomsMap = this.room_operator.getAllRoomsAvailable();
         const room_data = mapToObj(roomsMap);
-        const user_data = await this.user_operator.getUserOffline(user_id);
+        const user_data = this.user_operator.getUser(user_id);
+        const usersMap = this.user_operator.getAllUsers();
+        const users_data = mapToObj(usersMap);
 
         var info = {
             type: "init_data",
@@ -54,11 +60,10 @@ export class WSClientOperator {
                 user_id: user_id,
                 user: user_data,
                 rooms_data: room_data,
-                animations_data: animations
+                users_data: users_data
             }
         };
     
-        //connection.send(JSON.stringify(info));
         this.sendMessageToClient(user_id, info);
     }
 

@@ -297,12 +297,12 @@ var MyServer = {
         var msg = JSON.parse(message.utf8Data, true);
 
         // Since it is a callback, this referes to the connection
-        var connection = this;
+        const connection = this;
 
         // Checking token
-        let token = msg["token"];
-        let user_id = await authorizer.getUserIdFromToken(token);
-        let isNotAuthorized = !user_id;
+        const token = msg["token"];
+        const user_id = await authorizer.getUserIdFromToken(token);
+        const isNotAuthorized = !user_id;
         if(isNotAuthorized) {
             connection.close(1008, "Unauthorized");
             return;
@@ -310,7 +310,7 @@ var MyServer = {
         console.log("User with user_id " + user_id  + " is authorized!!");
 
         // Create payload
-        var payload = {
+        let payload = {
             type: "msg",
             data: {
                 author_id: connection.user_id,
@@ -318,43 +318,29 @@ var MyServer = {
             }
         };
 
-        if(msg["type"] == "user_request_init_data") {            
+        if(msg["type"] == "user_connect_world") {
+            await userOperator.addUserInRoom(user_id);
             wsClientOperator.addClient(connection, user_id);
-            wsClientOperator.sendUserInitData(user_id, world);
+            wsClientOperator.sendUserInitData(user_id);
         }
 
-        else if(msg.private){
-            var target_ids = msg.target_ids;
+        else if(msg["private"]){
+            const target_ids = msg.target_ids;
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
             wsClientOperator.broadcastPayloadToClients(target_ids, payload);
-            return;
-        } 
-
-        else if(msg["type"] == "user_connect_room") {
-            var user_data = msg["user_data"];
-            var room_id = user_data["room_id"];
-            connection.room_id = room_id;
-
-            userOperator.addUserInRoom(user_data, room_id);
-
-            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
-            wsClientOperator.sendUsersInRoom(user_id);
-
-            return;
         }
 
         else if(msg["type"] == "user_update_position") {
-            var target_position = msg["target_position"];
+            const target_position = msg["target_position"];
 
             // Update user position in our registry
             userOperator.updateUserTargetPosition(user_id, target_position);
             wsClientOperator.broadcastPayload(user_id, payload)
-            return;
         }
 
         else if(msg["type"] == "user_change_room") {
-            let room_id = msg["room_id"];
+            const room_id = msg["room_id"];
 
             userOperator.changeUserRoom(user_id, room_id);
 
@@ -368,9 +354,8 @@ var MyServer = {
     },
 
     onClose: function (event) {
-        var connection = this;
-        var user_id = connection.user_id;
-
+        const connection = this;
+        const user_id = wsClientOperator.getUserIdFromClient(connection);
 
         wsClientOperator.removeClient(user_id);
 

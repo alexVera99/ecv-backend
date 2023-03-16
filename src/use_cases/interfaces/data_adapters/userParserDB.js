@@ -1,7 +1,10 @@
 import { User } from "../../../entities/dataContainers.js";
+import { animParserDB } from "./animParserDB.js";
 
 export class UserParseDB {
-    static parseUserFromDb(userAdapter, sceneNodeAdapter, materialAdapter, animationAdapter) {
+    static parse(userAdapter, sceneNodeAdapter, materialAdapter, animationAdapterArray) {
+        const animations = animParserDB.parseArray(animationAdapterArray);
+
         const user_data = {
             user_id: userAdapter.user_id,
             username: userAdapter.username,
@@ -16,13 +19,7 @@ export class UserParseDB {
                     name: materialAdapter.name,
                     color_texture: materialAdapter.color_texture
                 },
-                animations: animationAdapter.map(adapter => {
-                    return {
-                        id: adapter.id,
-                        name: adapter.name,
-                        uri: adapter.uri
-                    };
-                })
+                animations: animations
             }
         };
 
