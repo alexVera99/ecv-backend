@@ -183,6 +183,48 @@ app.all('/logout', function (req, res) {
 });
 
 
+app.get('/room_debug', function (req, res) {
+    if (!isDebugMode) {
+        const error_payload = {
+            message: "Not in debug mode"
+        };
+        res.status(400).send(JSON.stringify(error_payload));
+        return;
+    }
+    var rooms = roomOperator.getAllRoomsAvailable();
+    var clients = wsClientOperator.getAllClients();
+
+    let rooms_info = [];
+
+    rooms.forEach((room, id) => {
+        const users = room.users;
+        const num_users = users.size;
+
+        const users_info = [];
+
+        users.forEach((user) => {
+            users_info.push({
+                user_id: user.user_id,
+                username: user.username
+            });
+        })
+
+        rooms_info.push({
+            room_id: room.id,
+            num_users: num_users,
+            users: users_info
+        });
+    })
+
+    let payload = {
+        num_clients: clients.size,
+        rooms: rooms_info
+    };
+
+    res.status(200).send(JSON.stringify(payload));
+
+})
+
 var connector = new MySQLConnector();
 
 var world = new World();
@@ -230,12 +272,6 @@ var MyServer = {
             httpServer: server
         });
         MyServer.wsServer.on('request', MyServer.wsConnectionHandler.bind(this));
-
-        // Debugging mode
-        if(isDebugMode){
-            setInterval(MyServer.usersConnectedAndRooms.bind(MyServer), 5000);
-            console.log("DEBUG MODE ON!!!!!!!!!");
-        }
     },
 
     wsConnectionHandler: function(request) {
@@ -391,42 +427,6 @@ var MyServer = {
         }
 
         return room_info;
-    },
-
-    // Debug
-    usersConnectedAndRooms: function() {
-        var rooms =     roomOperator.getAllRoomsAvailable();
-        var clients = wsClientOperator.getAllClients();
-        var num_clients = clients.size;
-
-        console.log("\n\n\n\n\n");
-        console.log("---------------------------------");
-        console.log("--------------DEBUG--------------")
-        console.log("Num of websocket clients ", num_clients);
-
-        rooms.forEach((room, id) => {
-            var room_id = id;
-            var users = room.users;
-            console.log(room);
-            var num_users = users.size;
-
-            console.log("------------------");
-            console.log("ROOM ", room_id);
-            console.log("Num of users connected: ", num_users);
-            users.forEach((user) => {
-                console.log("-------");
-                console.log("User id:", user.user_id);
-                console.log("User name:", user.username);
-                console.log("-------");
-
-            })
-            console.log("------------------");
-            
-        })
-
-
-        console.log("---------------------------------");
-        console.log("---------------------------------");
     }
 }
 
