@@ -322,6 +322,8 @@ var MyServer = {
             await userOperator.addUserInRoom(user_id);
             wsClientOperator.addClient(connection, user_id);
             wsClientOperator.sendUserInitData(user_id);
+            const user_data = userOperator.getUser(user_id);
+            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
         }
 
         else if(msg["private"]){
