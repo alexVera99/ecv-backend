@@ -1,12 +1,9 @@
 on:
   push:
-    branches: [ "DEACTIVATEDDDDDDD" ]
+    branches: [ "main" ]
 
 env:
   NODE_VERSION: '18.13.0'
-  SERVER_USER: 'MOONSCAPE'
-  SERVER_URL: 'ecv-etic.upf.edu'
-  SERVER_DEPLOY_PATH: '/home/MOONSCAPE/p2/backend'
 
 permissions:
   contents: read
@@ -36,11 +33,11 @@ jobs:
     - name: Install sshpass
       run: |
         sudo apt-get install sshpass
-    
-    - name: npm install
-      run: |
-        sshpass -p ${{ secrets.SERVER_PASS }} ssh -o StrictHostKeyChecking=no MOONSCAPE@ecv-etic.upf.edu 'cd /home/MOONSCAPE/p2/backend; npm install'
 
     - name: 'Deploy to UPF server'
       run: |
-        sshpass -p ${{ secrets.SERVER_PASS }} scp -r -o StrictHostKeyChecking=no ./deployment/* ${{ env.SERVER_USER }}@${{ env.SERVER_URL }}:${{ env.SERVER_DEPLOY_PATH }}
+        sshpass -p ${{ secrets.SERVER_PASS }} scp -r -o StrictHostKeyChecking=no ./deployment/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_URL }}:${{ secrets.SERVER_DEPLOY_PATH }}
+
+    - name: npm install
+      run: |
+        sshpass -p ${{ secrets.SERVER_PASS }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_URL }} 'cd ${{ secrets.SERVER_DEPLOY_PATH }}; npm install'
