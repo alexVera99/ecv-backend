@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-03-10 01:47:30.7130
+-- Generation Time: 2023-03-18 19:07:29.6650
 -- -------------------------------------------------------------
 
 
@@ -27,7 +27,7 @@ CREATE TABLE `MOONSCAPE_3D_animations` (
   PRIMARY KEY (`id`),
   KEY `scene_node_id` (`scene_node_id`),
   CONSTRAINT `MOONSCAPE_3D_animations_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_materials`;
 CREATE TABLE `MOONSCAPE_3D_materials` (
@@ -38,7 +38,7 @@ CREATE TABLE `MOONSCAPE_3D_materials` (
   PRIMARY KEY (`id`),
   KEY `scene_node_id` (`scene_node_id`),
   CONSTRAINT `MOONSCAPE_3D_materials_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_rooms`;
 CREATE TABLE `MOONSCAPE_3D_rooms` (
@@ -56,7 +56,7 @@ CREATE TABLE `MOONSCAPE_3D_scene_nodes` (
   `scale` float DEFAULT NULL,
   `position` char(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0]',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_tokens`;
 CREATE TABLE `MOONSCAPE_3D_tokens` (
@@ -85,19 +85,23 @@ CREATE TABLE `MOONSCAPE_3D_users` (
 INSERT INTO `MOONSCAPE_3D_animations` (`id`, `name`, `uri`, `scene_node_id`) VALUES
 (1, 'idle', 'data/girl/idle.skanim', 1),
 (2, 'walking', 'data/girl/walking.skanim', 1),
-(3, 'dance', 'data/girl/dance.skanim', 1);
+(3, 'dance', 'data/girl/dance.skanim', 1),
+(4, 'idle', 'data/man/idle.abin', 2),
+(5, 'walking', 'data/man/walking.abin', 2);
 
 INSERT INTO `MOONSCAPE_3D_materials` (`id`, `name`, `color_texture_uri`, `scene_node_id`) VALUES
-(1, 'girl', 'girl/girl.png', 1);
+(1, 'girl', 'girl/girl.png', 1),
+(2, 'man', 'man/peopleColors.png', 2);
 
 INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `gltf_uri`) VALUES
 (1, 'room 1', 40, 'data/room.gltf');
 
 INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`, `position`) VALUES
-(1, 'girl/girl.wbin', 0.3, '[-40, 0, 0]');
+(1, 'girl/girl.wbin', 0.3, '[-40, 0, 0]'),
+(2, 'man/man.wbin', 0.3, '[-10, 0, 0]');
 
 INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`) VALUES
-(1, 'Alex', 1, 1, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O'),
+(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O'),
 (2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i');
 
 

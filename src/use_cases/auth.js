@@ -25,16 +25,20 @@ export class Authorizer {
     }
 
     async login(username, password, callback) {
-        let userAdapter = await this.userRepository.getUserWithPassword(username);
-        let user_id = userAdapter.user_id;
-        let user = await this.userOperator.getUserFromDB(user_id);
-        user.scene_node.animations = mapToObj(user.scene_node.animations);
-        let hash = userAdapter["password_hash"];
-        let isNotHash = !hash;
-
-        if(isNotHash) {
+        try {
+            var userAdapter = await this.userRepository.getUserWithPassword(username);
+            var user_id = userAdapter.user_id;
+            var user = await this.userOperator.getUserFromDB(user_id);
+            var hash = userAdapter["password_hash"];
+            var isNotHash = !hash;
+            
+            if(isNotHash) {
+                throw new Error("User does not exist");
+            }
+        } catch (error) {
             let err = "User does not exist";
             callback(err);
+            return;
         }
 
         bcrypt.compare(password, hash, async (err, result) => {
