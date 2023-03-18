@@ -247,7 +247,7 @@ var animationOperator = new AnimationOperator(world, animationRepository);
 var wsClientOperator = new WSClientOperator(userOperator, roomOperator, animationOperator);
 
 // Auth
-var authorizer = new Authorizer(userRepository, tokenRepository);
+var authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
