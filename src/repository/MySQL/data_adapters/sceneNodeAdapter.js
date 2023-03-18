@@ -15,7 +15,7 @@ export class SceneNodeAdapter {
         const id = mySqlRow["id"];
         const mesh_uri = mySqlRow["mesh_uri"];
         const scale = mySqlRow["scale"];
-        const position = mySqlRow["position"];
+        const position = JSON.parse(mySqlRow["position"]);
 
         const adapter = new SceneNodeAdapter(
             id,

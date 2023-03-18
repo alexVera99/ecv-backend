@@ -27,12 +27,4 @@ export class AnimationOperator {
     getAllAnimations(){
         return this.world.getAllAnimations();
     }
-
-    loadAnimationsInWorld() {
-        this.animationRepository.getAnimations().then( a => a.forEach(anim => {
-            this.world.addAnimation(anim);
-        }));
-         
-    }
-
 }

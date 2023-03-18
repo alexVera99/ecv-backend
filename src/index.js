@@ -52,12 +52,15 @@ app.all('/signup', function (req, res) {
     let username = payload["username"];
     let password = String(payload["password"]);
     let scene_node_id = payload["scene_node_id"];
+    const room_id = payload["room_id"];
 
     let is_username_not_defined = !username;
     let is_password_not_defined = !password;
     let is_animation_id_not_defined = !scene_node_id;
+    let is_room_id_not_defined = !room_id;
 
-    if (is_username_not_defined || is_password_not_defined || is_animation_id_not_defined) {
+    if (is_username_not_defined || is_password_not_defined
+        || is_animation_id_not_defined || is_room_id_not_defined) {
         let status_code = 400;
         let message = "Error creating user";
         let payload = {
@@ -87,7 +90,7 @@ app.all('/signup', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
     }
 
-    authorizer.signup(username, password, scene_node_id, onsignup);
+    authorizer.signup(username, password, scene_node_id, room_id, onsignup);
 });
 
 app.all('/login', function (req, res) {
@@ -180,6 +183,48 @@ app.all('/logout', function (req, res) {
 });
 
 
+app.get('/room_debug', function (req, res) {
+    if (!isDebugMode) {
+        const error_payload = {
+            message: "Not in debug mode"
+        };
+        res.status(400).send(JSON.stringify(error_payload));
+        return;
+    }
+    var rooms = roomOperator.getAllRoomsAvailable();
+    var clients = wsClientOperator.getAllClients();
+
+    let rooms_info = [];
+
+    rooms.forEach((room, id) => {
+        const users = room.users;
+        const num_users = users.size;
+
+        const users_info = [];
+
+        users.forEach((user) => {
+            users_info.push({
+                user_id: user.user_id,
+                username: user.username
+            });
+        })
+
+        rooms_info.push({
+            room_id: room.id,
+            num_users: num_users,
+            users: users_info
+        });
+    })
+
+    let payload = {
+        num_clients: clients.size,
+        rooms: rooms_info
+    };
+
+    res.status(200).send(JSON.stringify(payload));
+
+})
+
 var connector = new MySQLConnector();
 
 var world = new World();
@@ -206,7 +251,6 @@ var authorizer = new Authorizer(userRepository, tokenRepository);
 
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
-animationOperator.loadAnimationsInWorld();
 
 var MyServer = {
     defaut_room_name: "default_room",
@@ -228,12 +272,6 @@ var MyServer = {
             httpServer: server
         });
         MyServer.wsServer.on('request', MyServer.wsConnectionHandler.bind(this));
-
-        // Debugging mode
-        if(isDebugMode){
-            setInterval(MyServer.usersConnectedAndRooms.bind(MyServer), 5000);
-            console.log("DEBUG MODE ON!!!!!!!!!");
-        }
     },
 
     wsConnectionHandler: function(request) {
@@ -295,12 +333,12 @@ var MyServer = {
         var msg = JSON.parse(message.utf8Data, true);
 
         // Since it is a callback, this referes to the connection
-        var connection = this;
+        const connection = this;
 
         // Checking token
-        let token = msg["token"];
-        let user_id = await authorizer.getUserIdFromToken(token);
-        let isNotAuthorized = !user_id;
+        const token = msg["token"];
+        const user_id = await authorizer.getUserIdFromToken(token);
+        const isNotAuthorized = !user_id;
         if(isNotAuthorized) {
             connection.close(1008, "Unauthorized");
             return;
@@ -308,7 +346,7 @@ var MyServer = {
         console.log("User with user_id " + user_id  + " is authorized!!");
 
         // Create payload
-        var payload = {
+        let payload = {
             type: "msg",
             data: {
                 author_id: connection.user_id,
@@ -316,52 +354,31 @@ var MyServer = {
             }
         };
 
-        if(msg["type"] == "user_request_init_data") {            
+        if(msg["type"] == "user_connect_world") {
+            await userOperator.addUserInRoom(user_id);
             wsClientOperator.addClient(connection, user_id);
-            wsClientOperator.sendUserInitData(user_id, world);
+            wsClientOperator.sendUserInitData(user_id);
+            const user_data = userOperator.getUser(user_id);
+            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
         }
 
-        else if(msg.private){
-            var target_ids = msg.target_ids;
+        else if(msg["private"]){
+            const target_ids = msg.target_ids;
             delete payload.data.msg.target_ids;
             delete payload.data.msg.private;
             wsClientOperator.broadcastPayloadToClients(target_ids, payload);
-            return;
-        } 
-
-        else if(msg["type"] == "user_connect_room") {
-            var user_data = msg["user_data"];
-            var room_id = user_data["room_id"];
-            connection.room_id = room_id;
-
-            userOperator.addUserInRoom(user_data, room_id);
-
-            wsClientOperator.broadcastOnNewUserConnected(user_id, user_data);
-            wsClientOperator.sendUsersInRoom(user_id);
-
-            return;
         }
 
         else if(msg["type"] == "user_update_position") {
-            var target_position = msg["target_position"];
+            const target_position = msg["target_position"];
 
             // Update user position in our registry
             userOperator.updateUserTargetPosition(user_id, target_position);
             wsClientOperator.broadcastPayload(user_id, payload)
-            return;
         }
 
         else if(msg["type"] == "user_change_room") {
-            let room_id = msg["room_id"];
-
-            userOperator.changeUserRoom(user_id, room_id);
-
-            wsClientOperator.broadcastPayloadToAll(payload);
-            wsClientOperator.sendUsersInRoom(user_id);
-        }
-
-        else if(msg["type"] == "user_change_room") {
-            let room_id = msg["room_id"];
+            const room_id = msg["room_id"];
 
             userOperator.changeUserRoom(user_id, room_id);
 
@@ -375,9 +392,8 @@ var MyServer = {
     },
 
     onClose: function (event) {
-        var connection = this;
-        var user_id = connection.user_id;
-
+        const connection = this;
+        const user_id = wsClientOperator.getUserIdFromClient(connection);
 
         wsClientOperator.removeClient(user_id);
 
@@ -411,42 +427,6 @@ var MyServer = {
         }
 
         return room_info;
-    },
-
-    // Debug
-    usersConnectedAndRooms: function() {
-        var rooms =     roomOperator.getAllRoomsAvailable();
-        var clients = wsClientOperator.getAllClients();
-        var num_clients = clients.size;
-
-        console.log("\n\n\n\n\n");
-        console.log("---------------------------------");
-        console.log("--------------DEBUG--------------")
-        console.log("Num of websocket clients ", num_clients);
-
-        rooms.forEach((room, id) => {
-            var room_id = id;
-            var users = room.users;
-            console.log(room);
-            var num_users = users.size;
-
-            console.log("------------------");
-            console.log("ROOM ", room_id);
-            console.log("Num of users connected: ", num_users);
-            users.forEach((user) => {
-                console.log("-------");
-                console.log("User id:", user.user_id);
-                console.log("User name:", user.username);
-                console.log("-------");
-
-            })
-            console.log("------------------");
-            
-        })
-
-
-        console.log("---------------------------------");
-        console.log("---------------------------------");
     }
 }
 

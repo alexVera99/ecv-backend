@@ -34,9 +34,9 @@ export class UserOperator{
         this.world = world;
     }
     
-    addUserInRoom(user_data, room_id){
-        var user = new User();
-        user.fromJSON(user_data);
+    async addUserInRoom(user_id){
+        const user = await this.getUserFromDB(user_id);
+        const room_id = user.room_id;
         this.world.addUserToRoom(user, room_id);
     }
 
@@ -54,7 +54,7 @@ export class UserOperator{
         const materialAdapter = await this.materialRepository.getBySceneNodeId(scene_node_id);
         const animationAdapter = await this.animationRepository.getAllBySceneNodeId(scene_node_id);
 
-        const user = UserParseDB.parseUserFromDb(userAdapter, sceneNodeAdapter, materialAdapter, animationAdapter);
+        const user = UserParseDB.parse(userAdapter, sceneNodeAdapter, materialAdapter, animationAdapter);
 
         return user;
     }

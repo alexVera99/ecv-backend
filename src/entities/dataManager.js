@@ -2,7 +2,6 @@ export class World{
     constructor() {
         this.users = new Map();
         this.rooms = new Map();
-        this.animations = new Map();
     }
 
     getUser(user_id){
@@ -25,14 +24,6 @@ export class World{
         return this.rooms;
     }
 
-    getAnimation(id){
-        return this.animations.get(id);
-    }
-
-    getAllAnimations(){
-        return this.animations;
-    }
-
     addUserToRoom(user, room_id){
         var user_id = user.user_id;
 
@@ -49,11 +40,6 @@ export class World{
         console.log("rooms in world: " + this.rooms.get(1));
     }
 
-    addAnimation(animation){
-        //console.log("adding animation: "+ animation);
-        this.animations.set(animation.avatar_id, animation);
-    }
-
     changeRoom(user_id, room_id){
         var user = this.getUser(user_id);
         
@@ -64,6 +50,9 @@ export class World{
 
     removeUserFromRoom(user_id, room_id) {
         var room = this.getRoom(room_id);
+
+        const user = this.getUser(user_id);
+        user.room_id = undefined;
 
         room.users.delete(user_id);
     }
