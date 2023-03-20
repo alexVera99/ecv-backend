@@ -9,6 +9,7 @@ export class UserParseDB {
             user_id: userAdapter.user_id,
             username: userAdapter.username,
             room_id: userAdapter.room_id,
+            position: userAdapter.position,
             scene_node: {
                 id: sceneNodeAdapter.id,
                 mesh_uri: sceneNodeAdapter.mesh_uri,

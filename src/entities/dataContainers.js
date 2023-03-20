@@ -58,7 +58,6 @@ export class SceneNode {
     material;
     scale;
     animations;
-    position;
 
     constructor() {
         this.animations = new Object();
@@ -72,7 +71,6 @@ export class SceneNode {
         
         this.scale = data["scale"];
         this.parseAnimationFromJSON(data["animations"])
-        this.position = data["position"];
     }
 
     addAnimation(name, anim){
@@ -99,6 +97,7 @@ export class User {
         this.username = username || "";
         this.room_id = null;
         this.scene_node = null;
+        this.position = [0.0, 0.0, 0.0];
     }
 
     fromJSON(data) {
@@ -107,6 +106,7 @@ export class User {
         this.room_id = data["room_id"];
         this.scene_node = new SceneNode();
         this.scene_node.fromJSON(data["scene_node"]);
+        this.position = data["position"];
     }
 }
 
