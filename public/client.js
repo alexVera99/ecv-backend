@@ -85,6 +85,24 @@ var my_client = {
                 user_id: 123
             }
         }
+
+        {
+            type: "request_user_position",
+        }
+
+        {
+            type: "new_users_position",
+            users_position: [
+                {
+                    user_id: 1,
+                    position: [0.3, 0.0, 1.0]
+                },
+                {
+                    user_id: 2,
+                    position: [10.0, 40.0, 100.0]
+                },
+            ]
+        }
         */
         var payload = JSON.parse(message.data);
         var type = payload["type"];
@@ -117,6 +135,15 @@ var my_client = {
         else if (type == "disconnection_user" && my_client.on_user_disconnected) {
             var user_id = data["user_id"];
             my_client.on_user_disconnected(user_id);
+        }
+
+        else if (type == "request_user_position" && my_client.on_request_user_position) {
+            my_client.on_request_user_position();
+        }
+
+        else if (type == "new_users_position" && my_client.on_new_users_position) {
+            var rooms = data["rooms"];
+            my_client.on_new_users_position(rooms);
         }
     },
 

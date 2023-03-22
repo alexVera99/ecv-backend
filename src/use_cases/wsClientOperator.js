@@ -102,6 +102,14 @@ export class WSClientOperator {
         });
     }
 
+    broadcastPayloadFromServer(payload) {
+        const users = this.user_operator.getAllUsers();
+
+        users.forEach((user, id) => {
+            this.sendMessageToClient(id, payload);
+        });
+    }
+
     broadcastPayloadToClients(user_ids, payload) {
         user_ids.forEach((user_id) => {
             this.sendMessageToClient(user_id, payload)
@@ -142,5 +150,13 @@ export class WSClientOperator {
         this.broadcastPayload(user_id, payload);
 
         console.log("USER " + user_id + " IS GONE");
+    }
+
+    requestUsersPosition() {
+        const payload = {
+            type: "request_user_position",
+        }
+
+        this.broadcastPayloadFromServer(payload);
     }
 }

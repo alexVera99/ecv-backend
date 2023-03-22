@@ -18,6 +18,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { SceneNodeRepository } from './repository/MySQL/sceneNodeRepository.js';
 import { MaterialRepository } from './repository/MySQL/materialRepository.js';
+import { PositionSyncer } from './use_cases/positionSyncer.js';
 
 config();
 
@@ -252,6 +253,12 @@ var authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
 
+// Position Syncronizer
+const requestPositionRate = 0.5;
+const sendPositionDelay = 0.5;
+const syncer = new PositionSyncer(wsClientOperator, roomOperator);
+syncer.sync(requestPositionRate, sendPositionDelay);
+
 var MyServer = {
     defaut_room_name: "default_room",
     clients: [],
@@ -370,11 +377,9 @@ var MyServer = {
         }
 
         else if(msg["type"] == "user_update_position") {
-            const target_position = msg["target_position"];
+            const position = msg["position"];
 
-            // Update user position in our registry
-            userOperator.updateUserTargetPosition(user_id, target_position);
-            wsClientOperator.broadcastPayload(user_id, payload)
+            userOperator.updateUserPosition(user_id, position);
         }
 
         else if(msg["type"] == "user_change_room") {

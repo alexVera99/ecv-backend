@@ -1,4 +1,3 @@
-import { User } from "../entities/dataContainers.js";
 import { UserParseDB } from "./interfaces/data_adapters/userParserDB.js";
 import { IAnimationRepository } from "./interfaces/iAnimationRepository.js";
 import { IMaterialRepository } from "./interfaces/iMaterialRepository.js";
@@ -74,11 +73,10 @@ export class UserOperator{
         return this.world.getAllUsers();
     }
 
-    updateUserTargetPosition(user_id, target_position) {
-        let user = this.getUser(user_id);
+    updateUserPosition(user_id, position) {
+        const user = this.getUser(user_id);
 
-        user.target_position = target_position;
-        user.position = target_position; // OJOO!! IT CAN GENERATE SMALL DESYNC WHEN NEW USER CONNECTED
+        user.position = position;
     }
 
     removeUserFromRoom(user_id, room_id) {

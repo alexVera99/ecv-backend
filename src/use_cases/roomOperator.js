@@ -14,7 +14,6 @@ export class RoomOperator {
 
     getAllUsersInRoom(room_id) {
         var users = this.world.getAllUsersInRoom(room_id);
-        console.log("[Room operator] Users in room: " + JSON.stringify(users));
 
         return users;
     }
