@@ -350,7 +350,6 @@ var MyServer = {
             connection.close(1008, "Unauthorized");
             return;
         }
-        console.log("User with user_id " + user_id  + " is authorized!!");
 
         // Create payload
         let payload = {
@@ -376,7 +375,7 @@ var MyServer = {
             wsClientOperator.broadcastPayloadToClients(target_ids, payload);
         }
 
-        else if(msg["type"] == "user_update_position") {
+        else if(msg["type"] == "user_update_attitude") {
             const position = msg["position"];
 
             userOperator.updateUserPosition(user_id, position);

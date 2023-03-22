@@ -87,11 +87,11 @@ var my_client = {
         }
 
         {
-            type: "request_user_position",
+            type: "request_user_attitude",
         }
 
         {
-            type: "new_users_position",
+            type: "new_users_attitude",
             users_position: [
                 {
                     user_id: 1,
@@ -137,13 +137,13 @@ var my_client = {
             my_client.on_user_disconnected(user_id);
         }
 
-        else if (type == "request_user_position" && my_client.on_request_user_position) {
-            my_client.on_request_user_position();
+        else if (type == "request_user_attitude" && my_client.on_request_user_attitude) {
+            my_client.on_request_user_attitude();
         }
 
-        else if (type == "new_users_position" && my_client.on_new_users_position) {
+        else if (type == "new_users_attitude" && my_client.on_new_users_attitude) {
             var rooms = data["rooms"];
-            my_client.on_new_users_position(rooms);
+            my_client.on_new_users_attitude(rooms);
         }
     },
 

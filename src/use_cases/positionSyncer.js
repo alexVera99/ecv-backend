@@ -15,20 +15,20 @@ export class PositionSyncer {
         sendPositionDelay = sendPositionDelay*1000;
 
         setInterval(
-            this.wsClientOperator.requestUsersPosition.bind(this.wsClientOperator),
+            this.wsClientOperator.requestUsersAttitude.bind(this.wsClientOperator),
             requestPositionRate
         );
         const updatePostRate = requestPositionRate + sendPositionDelay;
         setInterval(
-            this.sendUsersPosition.bind(this),
+            this.sendUsersAttitude.bind(this),
             updatePostRate
         )
     }
 
-    sendUsersPosition() {
+    sendUsersAttitude() {
         /* 
         {
-            type: "new_users_position",
+            type: "new_users_attitude",
             data: {
                 rooms: [
                 {
@@ -65,7 +65,7 @@ export class PositionSyncer {
         */
 
         const payload = {
-            type: "new_users_position",
+            type: "new_users_attitude",
             data: {
                 rooms: []
             }

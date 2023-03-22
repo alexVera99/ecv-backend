@@ -152,9 +152,10 @@ export class WSClientOperator {
         console.log("USER " + user_id + " IS GONE");
     }
 
-    requestUsersPosition() {
+    requestUsersAttitude() {
+        /* It requests users position, orientation and animation */
         const payload = {
-            type: "request_user_position",
+            type: "request_user_attitude",
         }
 
         this.broadcastPayloadFromServer(payload);
