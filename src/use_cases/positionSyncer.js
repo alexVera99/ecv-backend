@@ -86,10 +86,14 @@ export class PositionSyncer {
             users.forEach(user => {
                 const id = user.user_id;
                 const position = user.position;
+                const orientation = user.orientation;
+                const current_animation = user.current_animation;
                 
                 users_position.push({
                     user_id: id,
-                    position: position
+                    position: position,
+                    orientation: orientation,
+                    current_animation: current_animation
                 });
             });
 

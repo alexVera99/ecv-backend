@@ -377,8 +377,10 @@ var MyServer = {
 
         else if(msg["type"] == "user_update_attitude") {
             const position = msg["position"];
+            const orientation = msg["orientation"];
+            const current_animation = msg["current_animation"];
 
-            userOperator.updateUserPosition(user_id, position);
+            userOperator.updateUserAttitude(user_id, position, orientation, current_animation);
         }
 
         else if(msg["type"] == "user_change_room") {

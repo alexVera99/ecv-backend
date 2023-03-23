@@ -98,6 +98,8 @@ export class User {
         this.room_id = null;
         this.scene_node = null;
         this.position = [0.0, 0.0, 0.0];
+        this.orientation = [0.0, 0.0, 0.0, 1.0];
+        this.current_animation = undefined;
     }
 
     fromJSON(data) {
@@ -107,6 +109,8 @@ export class User {
         this.scene_node = new SceneNode();
         this.scene_node.fromJSON(data["scene_node"]);
         this.position = data["position"];
+        this.orientation = data["orientation"] || this.orientation;
+        this.current_animation = data["current_animation"] || "idle";
     }
 }
 

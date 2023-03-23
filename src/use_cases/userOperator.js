@@ -73,10 +73,12 @@ export class UserOperator{
         return this.world.getAllUsers();
     }
 
-    updateUserPosition(user_id, position) {
+    updateUserAttitude(user_id, position, orientation, current_animation) {
         const user = this.getUser(user_id);
 
         user.position = position;
+        user.orientation = orientation;
+        user.current_animation = current_animation;
     }
 
     removeUserFromRoom(user_id, room_id) {
