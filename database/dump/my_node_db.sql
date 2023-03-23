@@ -1,10 +1,10 @@
 -- -------------------------------------------------------------
--- TablePlus 5.3.4(492)
+-- TablePlus 5.3.5(494)
 --
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-03-20 22:03:21.0890
+-- Generation Time: 2023-03-23 21:05:25.1510
 -- -------------------------------------------------------------
 
 
@@ -75,6 +75,7 @@ CREATE TABLE `MOONSCAPE_3D_users` (
   `scene_node_id` int(11) NOT NULL,
   `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0]',
+  `orientation` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0, 1.0]',
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
   KEY `scene_node_id` (`scene_node_id`),
@@ -100,9 +101,9 @@ INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`) VALUES
 (1, 'girl/girl.wbin', 0.3),
 (2, 'man/man.wbin', 0.3);
 
-INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`) VALUES
-(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[-40, 0, 0]'),
-(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[-10, 0, 0]');
+INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`, `orientation`) VALUES
+(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[-40, 0, 0]', '[0.0, 0.0, 0.0, 1.0]'),
+(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[-10, 0, 0]', '[0.0, -0.47, 0.0, 0.88]');
 
 
 

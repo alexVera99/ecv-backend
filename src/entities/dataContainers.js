@@ -108,7 +108,7 @@ export class User {
         this.room_id = data["room_id"];
         this.scene_node = new SceneNode();
         this.scene_node.fromJSON(data["scene_node"]);
-        this.position = data["position"];
+        this.position = data["position"] || this.position;
         this.orientation = data["orientation"] || this.orientation;
         this.current_animation = data["current_animation"] || "idle";
     }
