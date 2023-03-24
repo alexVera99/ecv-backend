@@ -99,7 +99,7 @@ export class User {
         this.scene_node = null;
         this.position = [0.0, 0.0, 0.0];
         this.orientation = [0.0, 0.0, 0.0, 1.0];
-        this.current_animation = undefined;
+        this.current_animation = "idle";
     }
 
     fromJSON(data) {
@@ -110,7 +110,7 @@ export class User {
         this.scene_node.fromJSON(data["scene_node"]);
         this.position = data["position"] || this.position;
         this.orientation = data["orientation"] || this.orientation;
-        this.current_animation = data["current_animation"] || "idle";
+        this.current_animation = data["current_animation"] || this.current_animation;
     }
 }
 
