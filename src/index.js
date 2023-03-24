@@ -254,8 +254,8 @@ var authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 roomOperator.loadRoomsInWorld();
 
 // Position Syncronizer
-const requestPositionRate = 0.5;
-const sendPositionDelay = 0.5;
+const requestPositionRate = 0.01;
+const sendPositionDelay = 0.01;
 const syncer = new PositionSyncer(wsClientOperator, roomOperator);
 syncer.sync(requestPositionRate, sendPositionDelay);
 
