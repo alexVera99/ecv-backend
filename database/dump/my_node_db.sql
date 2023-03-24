@@ -67,6 +67,7 @@ CREATE TABLE `MOONSCAPE_3D_tokens` (
   CONSTRAINT `MOONSCAPE_3D_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `MOONSCAPE_3D_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
 DROP TABLE IF EXISTS `MOONSCAPE_3D_users`;
 CREATE TABLE `MOONSCAPE_3D_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -95,15 +96,15 @@ INSERT INTO `MOONSCAPE_3D_materials` (`id`, `name`, `color_texture_uri`, `scene_
 (2, 'man', 'man/peopleColors.png', 2);
 
 INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `gltf_uri`) VALUES
-(1, 'room 1', 40, 'data/room.gltf');
+(1, 'room 1', 40, 'data/room_cube_field.glb');
 
 INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`) VALUES
 (1, 'girl/girl.wbin', 0.3),
 (2, 'man/man.wbin', 0.3);
 
 INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`, `orientation`) VALUES
-(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[-40, 0, 0]', '[0.0, 0.0, 0.0, 1.0]'),
-(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[-10, 0, 0]', '[0.0, -0.47, 0.0, 0.88]');
+(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[150, 0, 150]', '[0.0, 0.0, 0.0, 1.0]'),
+(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[200, 0, 100]', '[0.0, -0.47, 0.0, 0.88]');
 
 
 
