@@ -75,6 +75,13 @@ export class UserOperator{
 
     updateUserAttitude(user_id, position, orientation, current_animation) {
         const user = this.getUser(user_id);
+        
+        // This may happen because the user has been disconnected
+        // prior to update its attitude
+        if(!user) {
+            console.log("Attitude of user with id " + user_id + " could not be updated. User was not found in the world");
+            return;
+        }
 
         user.position = position;
         user.orientation = orientation;
