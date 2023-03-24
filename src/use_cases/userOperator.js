@@ -1,4 +1,3 @@
-import { User } from "../entities/dataContainers.js";
 import { UserParseDB } from "./interfaces/data_adapters/userParserDB.js";
 import { IAnimationRepository } from "./interfaces/iAnimationRepository.js";
 import { IMaterialRepository } from "./interfaces/iMaterialRepository.js";
@@ -74,11 +73,19 @@ export class UserOperator{
         return this.world.getAllUsers();
     }
 
-    updateUserTargetPosition(user_id, target_position) {
-        let user = this.getUser(user_id);
+    updateUserAttitude(user_id, position, orientation, current_animation) {
+        const user = this.getUser(user_id);
+        
+        // This may happen because the user has been disconnected
+        // prior to update its attitude
+        if(!user) {
+            console.log("Attitude of user with id " + user_id + " could not be updated. User was not found in the world");
+            return;
+        }
 
-        user.target_position = target_position;
-        user.position = target_position; // OJOO!! IT CAN GENERATE SMALL DESYNC WHEN NEW USER CONNECTED
+        user.position = position;
+        user.orientation = orientation;
+        user.current_animation = current_animation;
     }
 
     removeUserFromRoom(user_id, room_id) {

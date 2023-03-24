@@ -18,6 +18,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { SceneNodeRepository } from './repository/MySQL/sceneNodeRepository.js';
 import { MaterialRepository } from './repository/MySQL/materialRepository.js';
+import { PositionSyncer } from './use_cases/positionSyncer.js';
 
 config();
 
@@ -252,6 +253,12 @@ var authorizer = new Authorizer(userRepository, tokenRepository, userOperator);
 // Bootstrapping
 roomOperator.loadRoomsInWorld();
 
+// Position Syncronizer
+const requestPositionRate = 0.01;
+const sendPositionDelay = 0.01;
+const syncer = new PositionSyncer(wsClientOperator, roomOperator);
+syncer.sync(requestPositionRate, sendPositionDelay);
+
 var MyServer = {
     defaut_room_name: "default_room",
     clients: [],
@@ -343,7 +350,6 @@ var MyServer = {
             connection.close(1008, "Unauthorized");
             return;
         }
-        console.log("User with user_id " + user_id  + " is authorized!!");
 
         // Create payload
         let payload = {
@@ -369,12 +375,12 @@ var MyServer = {
             wsClientOperator.broadcastPayloadToClients(target_ids, payload);
         }
 
-        else if(msg["type"] == "user_update_position") {
-            const target_position = msg["target_position"];
+        else if(msg["type"] == "user_update_attitude") {
+            const position = msg["position"];
+            const orientation = msg["orientation"];
+            const current_animation = msg["current_animation"];
 
-            // Update user position in our registry
-            userOperator.updateUserTargetPosition(user_id, target_position);
-            wsClientOperator.broadcastPayload(user_id, payload)
+            userOperator.updateUserAttitude(user_id, position, orientation, current_animation);
         }
 
         else if(msg["type"] == "user_change_room") {
