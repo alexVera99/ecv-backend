@@ -85,22 +85,27 @@ CREATE TABLE `MOONSCAPE_3D_users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 INSERT INTO `MOONSCAPE_3D_animations` (`id`, `name`, `uri`, `scene_node_id`) VALUES
-(1, 'idle', 'data/girl/idle.skanim', 1),
-(2, 'walking', 'data/girl/walking.skanim', 1),
-(3, 'dance', 'data/girl/dance.skanim', 1),
-(4, 'idle', 'data/man/idle.abin', 2),
-(5, 'walking', 'data/man/walking.abin', 2);
+(1, 'idle', 'data/megan/idle.abin', 1),
+(2, 'walking', 'data/megan/walking.abin', 1),
+(3, 'dance', 'data/megan/dancing.abin', 1),
+(4, 'wave', 'data/megan/waving.abin', 1),
+(5, 'cheer', 'data/megan/cheer.abin', 1),
+(6, 'idle', 'data/lewis/idle.abin', 2),
+(7, 'walking', 'data/lewis/walking.abin', 2),
+(8, 'dance', 'data/lewis/dancing.abin', 2),
+(9, 'wave', 'data/lewis/waving.abin', 2),
+(10,'cheer', 'data/lewis/cheer.abin', 2);
 
 INSERT INTO `MOONSCAPE_3D_materials` (`id`, `name`, `color_texture_uri`, `scene_node_id`) VALUES
-(1, 'girl', 'girl/girl.png', 1),
-(2, 'man', 'man/peopleColors.png', 2);
+(1, 'megan', 'megan/megan.png', 1),
+(2, 'lewis', 'lewis/lewis.png', 2);
 
 INSERT INTO `MOONSCAPE_3D_rooms` (`id`, `name`, `scale`, `gltf_uri`) VALUES
 (1, 'room 1', 40, 'data/room_cube_field.glb');
 
 INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`) VALUES
-(1, 'girl/girl.wbin', 0.3),
-(2, 'man/man.wbin', 0.3);
+(1, 'megan/megan.wbin', 0.3),
+(2, 'lewis/lewis.wbin', 0.3);
 
 INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`, `orientation`) VALUES
 (1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[150, 0, 150]', '[0.0, 0.0, 0.0, 1.0]'),
