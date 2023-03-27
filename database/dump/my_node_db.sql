@@ -80,7 +80,7 @@ CREATE TABLE `MOONSCAPE_3D_users` (
   KEY `room_id` (`room_id`),
   KEY `scene_node_id` (`scene_node_id`),
   CONSTRAINT `MOONSCAPE_3D_users_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`),
-  CONSTRAINT `users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`)
+  CONSTRAINT `MOONSCAPE_3D_users_ibfk_6` FOREIGN KEY (`room_id`) REFERENCES `MOONSCAPE_3D_rooms` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 INSERT INTO `MOONSCAPE_3D_animations` (`id`, `name`, `uri`, `scene_node_id`) VALUES
