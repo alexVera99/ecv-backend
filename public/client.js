@@ -1,13 +1,11 @@
 var my_client = {
     url: "",
-    room: undefined,
     socket: undefined,
 
-    connect: function (url, room) {
+    connect: function (url) {
         my_client.url = url;
-        my_client.room = room;
         
-        my_client.socket = new WebSocket("ws://" + url + "?room=" + room);
+        my_client.socket = new WebSocket(url);
 
         my_client.socket.onmessage = my_client.onMessage;
     },
