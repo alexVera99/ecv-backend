@@ -392,6 +392,11 @@ var MyServer = {
             wsClientOperator.sendUsersInRoom(user_id);
         }
 
+        else if(msg["type"] == "stream_id") {
+            wsClientOperator.broadcastPayload(user_id, payload);
+            wsClientOperator.broadcastPayloadToClients([user_id], payload);
+        }
+
         else if(msg["type"] == "msg") {
             wsClientOperator.broadcastPayload(user_id, payload);
         }
