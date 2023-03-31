@@ -36,4 +36,24 @@ export class RoomOperator {
         }));
          
     }
+
+    addStream(id, room_id) {
+        const room = this.getRoom(room_id);
+
+        /* if(room.stream_id) {
+            console.log("Room " + room_id + " has already a stream in process (" + room.stream_id + ")");
+            return false;
+        } */
+        room.stream_id = id;
+
+        console.log("Added stream ( " + id + " ) to Room " + room_id );
+
+        return true;
+    }
+
+    removeStream(room_id){
+        const room = this.getRoom(room_id); 
+
+        room.stream_id = null;
+    }
 }

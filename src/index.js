@@ -393,6 +393,16 @@ var MyServer = {
         }
 
         else if(msg["type"] == "stream_id") {
+            const room = userOperator.getUserRoom(user_id);
+            const room_id = room.room_id;
+            const stream_id = msg["stream_id"];
+            if(!roomOperator.addStream(stream_id, room_id)) {
+                msg.type = "stream_failure";
+                delete msg.stream_id;
+
+                wsClientOperator.broadcastPayloadToClients([user_id], payload); 
+                return;
+            }
             wsClientOperator.broadcastPayload(user_id, payload);
             wsClientOperator.broadcastPayloadToClients([user_id], payload);
         }
