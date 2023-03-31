@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-03-23 21:05:25.1510
+-- Generation Time: 2023-03-31 21:03:37.1050
 -- -------------------------------------------------------------
 
 
@@ -77,6 +77,7 @@ CREATE TABLE `MOONSCAPE_3D_users` (
   `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0]',
   `orientation` char(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Example: [0.0,0.0,0.0, 1.0]',
+  `is_streamer` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
   KEY `scene_node_id` (`scene_node_id`),

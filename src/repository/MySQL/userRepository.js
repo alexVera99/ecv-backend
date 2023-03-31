@@ -51,9 +51,9 @@ export class UserRepository extends IUserRepository {
         return userAdapter;
     }
 
-    async createUser(username, password, scene_node_id, room_id) {
-        var values = [username, password, scene_node_id, room_id];
-        var sql = "INSERT INTO " + this.table + " (username, password, scene_node_id, room_id) VALUES (?, ?, ?, ?)";
+    async createUser(username, password, scene_node_id, room_id, is_streamer) {
+        var values = [username, password, scene_node_id, room_id, is_streamer];
+        var sql = "INSERT INTO " + this.table + " (username, password, scene_node_id, room_id, is_streamer) VALUES (?, ?, ?, ?, ?)";
         return new Promise(async (resolve) => {
             this.connector.executeQueryWithParams(sql, values)
             .then(res => {
