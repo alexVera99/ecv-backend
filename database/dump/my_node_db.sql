@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: my_node_db
--- Generation Time: 2023-03-31 21:03:37.1050
+-- Generation Time: 2023-03-31 21:14:05.8550
 -- -------------------------------------------------------------
 
 
@@ -27,7 +27,7 @@ CREATE TABLE `MOONSCAPE_3D_animations` (
   PRIMARY KEY (`id`),
   KEY `scene_node_id` (`scene_node_id`),
   CONSTRAINT `MOONSCAPE_3D_animations_ibfk_1` FOREIGN KEY (`scene_node_id`) REFERENCES `MOONSCAPE_3D_scene_nodes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `MOONSCAPE_3D_materials`;
 CREATE TABLE `MOONSCAPE_3D_materials` (
@@ -67,7 +67,6 @@ CREATE TABLE `MOONSCAPE_3D_tokens` (
   CONSTRAINT `MOONSCAPE_3D_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `MOONSCAPE_3D_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-
 DROP TABLE IF EXISTS `MOONSCAPE_3D_users`;
 CREATE TABLE `MOONSCAPE_3D_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -95,7 +94,7 @@ INSERT INTO `MOONSCAPE_3D_animations` (`id`, `name`, `uri`, `scene_node_id`) VAL
 (7, 'walking', 'data/lewis/walking.abin', 2),
 (8, 'dance', 'data/lewis/dancing.abin', 2),
 (9, 'wave', 'data/lewis/waving.abin', 2),
-(10,'cheer', 'data/lewis/cheer.abin', 2);
+(10, 'cheer', 'data/lewis/cheer.abin', 2);
 
 INSERT INTO `MOONSCAPE_3D_materials` (`id`, `name`, `color_texture_uri`, `scene_node_id`) VALUES
 (1, 'megan', 'megan/megan.png', 1),
@@ -108,9 +107,9 @@ INSERT INTO `MOONSCAPE_3D_scene_nodes` (`id`, `mesh_uri`, `scale`) VALUES
 (1, 'megan/megan.wbin', 0.3),
 (2, 'lewis/lewis.wbin', 0.3);
 
-INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`, `orientation`) VALUES
-(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[150, 0, 150]', '[0.0, 0.0, 0.0, 1.0]'),
-(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[200, 0, 100]', '[0.0, -0.47, 0.0, 0.88]');
+INSERT INTO `MOONSCAPE_3D_users` (`id`, `username`, `room_id`, `scene_node_id`, `password`, `position`, `orientation`, `is_streamer`) VALUES
+(1, 'Alex', 1, 2, '$2b$10$wld.cZxntyUjBrAdN32zf.t0nFrwbpKN1hA2/M.PYFZ6wIOUMfU0O', '[150, 0, 150]', '[0.0, 0.0, 0.0, 1.0]', 1),
+(2, 'Anna', 1, 1, '$2b$10$5Ehdz1rBYniRAyhQLlXoz.ztR4G7lFs2Wasbt526k4akn3o/xPw9i', '[200, 0, 100]', '[0.0, -0.47, 0.0, 0.88]', 0);
 
 
 
