@@ -36,6 +36,7 @@ export class Authorizer {
                 throw new Error("User does not exist");
             }
         } catch (error) {
+            console.error(error);
             let err = "User does not exist";
             callback(err);
             return;
