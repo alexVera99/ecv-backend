@@ -11,6 +11,7 @@ export class UserParseDB {
             room_id: userAdapter.room_id,
             position: userAdapter.position,
             orientation: userAdapter.orientation,
+            is_streamer: userAdapter.is_streamer,
             scene_node: {
                 id: sceneNodeAdapter.id,
                 mesh_uri: sceneNodeAdapter.mesh_uri,
