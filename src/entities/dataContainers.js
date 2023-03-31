@@ -100,6 +100,7 @@ export class User {
         this.position = [0.0, 0.0, 0.0];
         this.orientation = [0.0, 0.0, 0.0, 1.0];
         this.current_animation = "idle";
+        this.is_streamer = false;
     }
 
     fromJSON(data) {
@@ -111,6 +112,7 @@ export class User {
         this.position = data["position"] || this.position;
         this.orientation = data["orientation"] || this.orientation;
         this.current_animation = data["current_animation"] || this.current_animation;
+        this.is_streamer = data["is_streamer"] || this.is_streamer;
     }
 }
 

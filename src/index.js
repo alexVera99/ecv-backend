@@ -54,6 +54,7 @@ app.all('/signup', function (req, res) {
     let password = String(payload["password"]);
     let scene_node_id = payload["scene_node_id"];
     const room_id = payload["room_id"];
+    const is_streamer = payload["is_streamer"];
 
     let is_username_not_defined = !username;
     let is_password_not_defined = !password;
@@ -91,7 +92,7 @@ app.all('/signup', function (req, res) {
         res.status(status_code).send(JSON.stringify(payload));
     }
 
-    authorizer.signup(username, password, scene_node_id, room_id, onsignup);
+    authorizer.signup(username, password, scene_node_id, room_id, is_streamer, onsignup);
 });
 
 app.all('/login', function (req, res) {

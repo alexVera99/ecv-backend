@@ -36,6 +36,7 @@ export class Authorizer {
                 throw new Error("User does not exist");
             }
         } catch (error) {
+            console.error(error);
             let err = "User does not exist";
             callback(err);
             return;
@@ -69,13 +70,13 @@ export class Authorizer {
         })
     }
 
-    signup (username, password, scene_node_id, room_id, callback){
+    signup (username, password, scene_node_id, room_id, is_streamer, callback){
         bcrypt.hash(password, this.saltRounds, async (err, hash) => {
             if(err) {
                 callback(err);
                 return;
             }
-            const isUserCreated = await this.userRepository.createUser(username, hash, scene_node_id, room_id);
+            const isUserCreated = await this.userRepository.createUser(username, hash, scene_node_id, room_id, is_streamer);
 
             if(!isUserCreated){
                 const error = "User couldn't be created";
