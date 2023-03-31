@@ -121,6 +121,7 @@ export class Room {
         this.users = new Map();
         this.scale = null;
         this.gltf_uri = null;
+        this.stream_id = null;
     }
 
     fromJSON(data) {
